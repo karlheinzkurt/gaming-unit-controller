@@ -40,7 +40,7 @@
   </root>
 
   <!-- Specify the level for some specific categories -->
-  <category name="SL.App.Utility.ProgramController" >
+  <category name="App.Utility.Controller" >
      <level value="debug"/>
      <appender-ref ref="ConsoleAppender"/>
   </category>

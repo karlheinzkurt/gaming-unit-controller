@@ -30,16 +30,18 @@ int main( int argc, char** argv )
    namespace po = boost::program_options;
    namespace fs = boost::filesystem;
    
+   fs::path const executablePath( /*fs::canonical( fs::absolute(*/ fs::path( argv[0] ).parent_path() /*) )*/ );
+   
    po::options_description desc("General options");
    desc.add_options()
        ("help",                  "This help message")
        ("check-interval,i"      ,po::value< uint64_t >()->default_value( std::chrono::seconds( 60 ).count() )
                                 ,"Interval to check for matching processes" )
-       ("statistic-file,c"      ,po::value< fs::path >()->default_value( fs::path( "." ) / "App.Utility.Controller.Statistic.xml" )
+       ("statistic-file,c"      ,po::value< fs::path >()->default_value( executablePath / "App.Utility.Controller.Statistic.xml" )
                                 ,"Path to config file") 
-       ("log-file,l"            ,po::value< fs::path >()->default_value( fs::path( "." ) / "App.Utility.Controller.log" )
+       ("log-file,l"            ,po::value< fs::path >()->default_value( executablePath / "App.Utility.Controller.log" )
                                 ,"Path to logger config file")
-       ("logger-config-file"    ,po::value< fs::path >()->default_value( fs::path( "." ) / "etc" / "App.Utility.Controller.Logger.xml" )
+       ("logger-config-file"    ,po::value< fs::path >()->default_value( executablePath / "etc" / "App.Utility.Controller.Logger.xml" )
                                 ,"Path to logger config file");
 
    try
@@ -54,10 +56,9 @@ int main( int argc, char** argv )
          return 1;
       }
 
-      fs::path const absoluteExecutablePath( fs::canonical( fs::absolute( fs::path( argv[0] ).parent_path() ) ) );
-      fs::path const logFilePath( absoluteExecutablePath / vm[ "log-file" ].as< fs::path >() );
-      fs::path const loggerConfigurationFilePath( absoluteExecutablePath / vm[ "logger-config-file" ].as< fs::path >() );
-      fs::path const statisticFilePath( absoluteExecutablePath / vm[ "statistic-file" ].as< fs::path >() );
+      fs::path const logFilePath( vm[ "log-file" ].as< fs::path >() );
+      fs::path const loggerConfigurationFilePath( vm[ "logger-config-file" ].as< fs::path >() );
+      fs::path const statisticFilePath( vm[ "statistic-file" ].as< fs::path >() );
       
       setenv("logfile.path", logFilePath.string().c_str(), 1);
       log4cxx::xml::DOMConfigurator::configure( loggerConfigurationFilePath.string() );
