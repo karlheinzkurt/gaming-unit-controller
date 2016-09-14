@@ -36,7 +36,7 @@ include(ExternalProject)         # Enable ExternalProject CMake module
 
 ExternalProject_Add(
     gmock
-    URL https://googlemock.googlecode.com/files/gmock-1.7.0.zip
+    URL https://github.com/google/googletest/archive/release-1.8.0.zip
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gmock
     # Disable install step
     INSTALL_COMMAND ""
@@ -54,14 +54,14 @@ set_target_properties(libgmock PROPERTIES
     "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
 
 SET(GMOCK_INCLUDE_DIRECTORIES
-   "${source_dir}/include"
-   "${source_dir}/gtest/include")
+   "${source_dir}/googlemock/include"
+   "${source_dir}/googletest/include")
 
 SET(GMOCK_ALL_LIBRARIES 
-   "${binary_dir}/gtest/libgtest.a" 
-   "${binary_dir}/gtest/libgtest_main.a" 
-   "${binary_dir}/libgmock.a" 
-   "${binary_dir}/libgmock_main.a"
+   "${binary_dir}/googlemock/gtest/libgtest.a" 
+   "${binary_dir}/googlemock/gtest/libgtest_main.a" 
+   "${binary_dir}/googlemock/libgmock.a" 
+   "${binary_dir}/googlemock/libgmock_main.a"
    pthread)
 
 add_subdirectory(Lib)
