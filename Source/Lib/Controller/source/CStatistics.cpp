@@ -1,5 +1,7 @@
 
 #include "../include/CStatistics.h"
+#include "../include/CCounter.h"
+#include "../include/Types.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -19,18 +21,9 @@ namespace Controller
    namespace fs = boost::filesystem;
    namespace ch = std::chrono;
    
-   typedef ch::duration< ch::hours::rep, std::ratio_multiply< ch::hours::period, std::ratio< 24 > >::type > days;
-   typedef ch::duration< days::rep, std::ratio_multiply< days::period, std::ratio< 7 > >::type > weeks;
-   
    namespace
    {
-      struct Counter
-      {
-         std::chrono::seconds m_active;
-         std::chrono::system_clock::time_point m_lastChange;
-      };
-      
-      typedef std::map< std::string, Counter > CounterMapType;
+      typedef std::map< std::string, std::unique_ptr<IUnitCounter> > CounterMapType;
    }
    
    struct Statistics::Impl
@@ -76,32 +69,9 @@ namespace Controller
    
    void Statistics::add( std::string const& match )
    {
-      auto& counter( m_impl->m_counter[ match ] );
-      
-      /** We reset the counter for the match when a new 
-       *  counting unit has been archieved.
-       * */
-      days::rep const unitNow( ch::duration_cast< days >( m_impl->m_now.time_since_epoch() ).count() );
-      days::rep const unitLastChange( ch::duration_cast< days >( counter.m_lastChange.time_since_epoch() ).count() );
-      if ( unitLastChange < unitNow )
-      {
-         LOG4CXX_INFO( m_impl->m_logger, "New unit, resetting counter for: " + match );
-         counter.m_active = ch::seconds( 0 );
-      }
-      
-      /** Only when the last run has updated the counter
-       *  do we add the delta to the active counter.
-       *  When the entry update was earlier, we just
-       *  set the update date to now, next run will 
-       *  then increase the active counter.
-       * */ 
-      if ( counter.m_lastChange >= m_impl->m_lastRun )
-      {  counter.m_active += ch::duration_cast< ch::seconds >( m_impl->m_now - m_impl->m_lastRun ); }
-      
-      /** When there was a match, we update the change stamp
-       *  in any case. 
-       * */
-      counter.m_lastChange = m_impl->m_now;
+      auto& counter( m_impl->m_counter.at(match) );
+   
+      counter->doUpdate(m_impl->m_now);
    }
    
    std::set< std::string > Statistics::getCurrentlyExceeding( std::chrono::seconds const& limit )
@@ -109,8 +79,7 @@ namespace Controller
       std::set< std::string > results;
       for ( auto& tuple : m_impl->m_counter )
       {
-         if (    tuple.second.m_lastChange >= m_impl->m_lastRun 
-              && tuple.second.m_active     >= limit )
+         if ( tuple.second->exceedsLimit( m_impl->m_lastRun ) )
          {  results.insert( tuple.first ); }
       }
       return results;
@@ -123,10 +92,8 @@ namespace Controller
       for ( auto const& counter : m_impl->m_counter )
       {
          pt::ptree ptCounter;
-         ptCounter.put( "name", counter.first );
-         ptCounter.put( "active", counter.second.m_active.count() );
-         ptCounter.put( "lastChange", counter.second.m_lastChange.time_since_epoch().count() );
-         tree.add_child( "statistics.counters.counter", ptCounter );
+         ptCounter.put( "name", counter.first );         
+         tree.add_child( "statistics.counters.counter", serialize(*counter.second));
       }
       pt::write_xml( m_impl->m_path.string(), tree, std::locale(), pt::xml_writer_make_settings<std::string>( ' ', 2 ) );
    }
@@ -143,10 +110,7 @@ namespace Controller
          {
             pt::ptree const& ptCounter( child.second );
             std::string const name( ptCounter.get< std::string >( "name" ) );
-            Counter counter;
-            counter.m_active = ch::seconds( ptCounter.get( "active", 0 ) );
-            counter.m_lastChange = ch::system_clock::time_point( ch::system_clock::time_point::duration( ptCounter.get( "lastChange", m_impl->m_now.time_since_epoch().count() ) ) );
-            m_impl->m_counter.emplace( CounterMapType::value_type( name, counter ) );
+            m_impl->m_counter.emplace(CounterMapType::value_type(name, deserialize(ptCounter)));
          }
       }
    }

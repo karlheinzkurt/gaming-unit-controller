@@ -19,7 +19,7 @@ namespace Controller
       return *this;
    }
    
-   Match& Match::add( std::set< std::reference_wrapper< IProcess const > > const& processes )
+   Match& Match::add( ProcessSetType const& processes )
    {
       for ( auto& process : processes )
       {  add( process ); }
@@ -29,7 +29,7 @@ namespace Controller
    std::string const& Match::getName() const
    {  return m_name; }
    
-   std::set< std::reference_wrapper< IProcess const > > Match::getProcesses() const
+   Match::ProcessSetType Match::getProcesses() const
    {  return m_processes; }
    
    std::ostream& operator<<( std::ostream& os, Match const& match )
@@ -60,7 +60,7 @@ namespace Controller
       if ( m_matcher.empty() )
       {  return ResultSet(); }
       
-      std::map< std::string, std::set< std::reference_wrapper< IProcess const > > > temporary;
+      std::map< std::string, Match::ProcessSetType > temporary;
       for ( auto& entry : m_matcher )
       {
          std::regex whiteList, blackList;
@@ -79,7 +79,7 @@ namespace Controller
    
    Matcher::ResultSet Matcher::matches( IProcessSet::SetType const& processes )
    {
-      std::map< std::string, std::set< std::reference_wrapper< IProcess const > > > temporary;
+      std::map< std::string, Match::ProcessSetType > temporary;
       for ( auto& process : processes )
       {  
          for ( auto const& match : matches( *process ) )

@@ -19,20 +19,22 @@ namespace Controller
 
    struct Match
    {
+      typedef std::set< std::reference_wrapper< IProcess const > > ProcessSetType;
+      
       Match( std::string const& name );
       
       Match( Match const& ) = default;
       Match& operator=( Match const& ) = default;
       
       Match& add( IProcess const& process );
-      Match& add( std::set< std::reference_wrapper< IProcess const > > const& processes );
+      Match& add( ProcessSetType const& processes );
       
       std::string const& getName() const;
-      std::set< std::reference_wrapper< IProcess const > > getProcesses() const;
+      ProcessSetType getProcesses() const;
       
    private:   
       std::string m_name;
-      std::set< std::reference_wrapper< IProcess const > > m_processes;
+      ProcessSetType m_processes;
    };
    std::ostream& operator<<( std::ostream& os, Match const& match );
       

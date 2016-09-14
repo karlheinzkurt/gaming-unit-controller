@@ -28,6 +28,7 @@ link_libraries(${COVERAGE_LINK_FLAGS})
 include_directories(${SOURCE_ROOT})
 
 FIND_PACKAGE(Boost 1.45.0 REQUIRED COMPONENTS system filesystem program_options)
+SET(Log4cxx_LIBRARIES log4cxx)
 
 # For the following gtest/gmock stuff see: http://www.kaizou.org/2014/11/gtest-cmake/
 # This downloads, builds and provides gtest/gmock
