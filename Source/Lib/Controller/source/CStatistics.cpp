@@ -1,7 +1,6 @@
 
 #include "../include/CStatistics.h"
-#include "../include/CCounter.h"
-#include "../include/Types.h"
+#include "../include/CUnitCounterFactory.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -69,7 +68,11 @@ namespace Controller
    
    void Statistics::add( std::string const& match )
    {
-      auto& counter( m_impl->m_counter.at(match) );
+      auto& counter( m_impl->m_counter[match] );
+      if (!counter)
+      {
+         counter = CUnitCounterFactory().create(Unit::Day, std::chrono::hours(1));
+      }
    
       counter->doUpdate(m_impl->m_now);
    }
@@ -91,9 +94,9 @@ namespace Controller
       tree.put( "statistics.lastRun", m_impl->m_now.time_since_epoch().count() );
       for ( auto const& counter : m_impl->m_counter )
       {
-         pt::ptree ptCounter;
-         ptCounter.put( "name", counter.first );         
-         tree.add_child( "statistics.counters.counter", serialize(*counter.second));
+         pt::ptree ptCounter(counter.second->serialize());
+         ptCounter.put( "name", counter.first );
+         tree.add_child( "statistics.counters.counter", ptCounter);
       }
       pt::write_xml( m_impl->m_path.string(), tree, std::locale(), pt::xml_writer_make_settings<std::string>( ' ', 2 ) );
    }
@@ -110,7 +113,7 @@ namespace Controller
          {
             pt::ptree const& ptCounter( child.second );
             std::string const name( ptCounter.get< std::string >( "name" ) );
-            m_impl->m_counter.emplace(CounterMapType::value_type(name, deserialize(ptCounter)));
+            m_impl->m_counter.emplace(CounterMapType::value_type(name, CUnitCounterFactory().create(ptCounter)));
          }
       }
    }

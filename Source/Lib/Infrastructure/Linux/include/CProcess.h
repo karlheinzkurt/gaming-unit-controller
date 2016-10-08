@@ -4,9 +4,8 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <set>
 #include <string>
-#include <iosfwd>
+#include <memory>
 #include <chrono>
 
 namespace Lib
@@ -35,21 +34,14 @@ namespace Linux
       virtual bool terminateAndWait( std::chrono::seconds const& timeout ) override;
       
       virtual bool killAndWait( std::chrono::seconds const& timeout ) override;
+      
+      virtual std::unique_ptr< API::IProcess > clone() const override;
      
    private:   
       boost::filesystem::path const m_processDirectory;
       int const m_pid;
       std::string const m_commandLine;
       bool const m_readable;
-   };
-   
-   struct CProcessSet : public API::IProcessSet
-   {
-      using API::IProcessSet::SetType;
-      
-      virtual SetType get() override;
-      
-      virtual SetType getSignallable( SetType const& processList ) override;
    };
 
 }}}

@@ -4,45 +4,43 @@
 #include <boost/algorithm/string.hpp>
 
 #include <regex>
+#include <sstream>
 
 namespace Lib
 {
 namespace Controller
 {
       
-   Match::Match( std::string const& name ) : m_name( name ), m_processes() 
-   {}
-   
-   Match& Match::add( IProcess const& process )
-   {  
-      m_processes.emplace( std::cref< IProcess >( process ) ); 
-      return *this;
-   }
-   
-   Match& Match::add( ProcessSetType const& processes )
+   CMatch::CMatch( std::string const& name, IProcess const& process ) : m_name( name ), m_processes() 
    {
-      for ( auto& process : processes )
-      {  add( process ); }
-      return *this;
+      m_processes.emplace(process.clone());
    }
    
-   std::string const& Match::getName() const
+   CMatch::CMatch( std::string const& name, IProcess::SetType const& processes ) : m_name( name ), m_processes() 
+   {  
+      for ( auto& process : processes )
+      {  
+         m_processes.emplace(process->clone());
+      }      
+   }
+   
+   std::string CMatch::getName() const
    {  return m_name; }
    
-   Match::ProcessSetType Match::getProcesses() const
-   {  return m_processes; }
-   
-   std::ostream& operator<<( std::ostream& os, Match const& match )
-   {
-      std::list< std::string > pids;
-      auto const processes( match.getProcesses() );
-      std::transform( processes.begin(), processes.end(), std::back_inserter( pids ), []( IProcess const& process )
-      {  return std::to_string( process.getProcessId() ); } );
-      
-      return ( os << match.getName() << ": with processes " << boost::algorithm::join( pids, ", " ) );
+   std::string CMatch::toString() const
+   {  
+      std::ostringstream os;
+      os << getName() << ":" << std::accumulate(m_processes.begin(), m_processes.end(), std::string(), [](std::string v, std::unique_ptr<IProcess> const& p)
+      {
+         return v + " " + std::to_string(p->getProcessId());
+      });
+      return os.str();
    }
    
-   Matcher& Matcher::add( 
+   API::IProcess::SetType const& CMatch::getProcesses() const
+   {  return m_processes; }
+   
+   API::IMatcher& CMatcher::addRule( 
        std::string name
       ,std::initializer_list< std::string > whiteList
       ,std::initializer_list< std::string > blackList /*= {}*/ )
@@ -54,13 +52,23 @@ namespace Controller
       return *this;
    }
    
-   Matcher::ResultSet Matcher::matches( IProcess const& process )
+   std::string CMatcher::toString() const
+   {
+      std::ostringstream os;
+      for (auto matcher : m_matcher)
+      {
+         os << matcher.first << "(" << /*std::get<0>(matcher.second)*/"whitelist" << ", !" << "blacklist"/*std::get<1>(matcher.second)*/ << ") ";
+      }
+      return os.str();
+   }
+   
+   API::IMatch::SetType CMatcher::matches( IProcess const& process ) const
    {
       std::string const commandLine( process.getCommandLine() );      
       if ( m_matcher.empty() )
-      {  return ResultSet(); }
+      {  return API::IMatch::SetType(); }
       
-      std::map< std::string, Match::ProcessSetType > temporary;
+      std::map< std::string, IProcess::SetType > temporary;
       for ( auto& entry : m_matcher )
       {
          std::regex whiteList, blackList;
@@ -68,28 +76,27 @@ namespace Controller
          if ( std::regex_match( commandLine, whiteList ) )
          {  
             if ( !std::regex_match( commandLine, blackList ) )
-            {  temporary[ entry.first ].insert( process ); }
+            {  temporary[ entry.first ].emplace(process.clone()); }
          }  
       }
       
-      ResultSet results;
-      for ( auto& tuple : temporary ) { results.emplace( Match( tuple.first ).add( tuple.second ) ); }
+      API::IMatch::SetType results;
+      for ( auto& tuple : temporary ) { results.emplace(std::make_unique<CMatch>(tuple.first, tuple.second)); }
       return std::move( results );
    }
    
-   Matcher::ResultSet Matcher::matches( IProcessSet::SetType const& processes )
+   API::IMatch::SetType CMatcher::matches( IProcess::SetType const& processes ) const
    {
-      std::map< std::string, Match::ProcessSetType > temporary;
+      std::map< std::string, IProcess::SetType > temporary;
       for ( auto& process : processes )
       {  
          for ( auto const& match : matches( *process ) )
          {
-            auto processes( match.getProcesses() );
-            temporary[ match.getName() ].insert( processes.begin(), processes.end() );
+            temporary[ match->getName() ].emplace(process->clone());
          }
       }
-      ResultSet results;
-      for ( auto& tuple : temporary ) { results.emplace( Match( tuple.first ).add( tuple.second ) ); }
+      API::IMatch::SetType results;
+      for ( auto& tuple : temporary ) { results.emplace(std::make_unique<CMatch>(tuple.first, tuple.second)); }
       return std::move( results );
    }
    

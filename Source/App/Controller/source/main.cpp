@@ -36,13 +36,15 @@ int main( int argc, char** argv )
    desc.add_options()
        ("help",                  "This help message")
        ("check-interval,i"      ,po::value< uint64_t >()->default_value( std::chrono::seconds( 60 ).count() )
-                                ,"Interval to check for matching processes" )
-       ("statistic-file,c"      ,po::value< fs::path >()->default_value( executablePath / "App.Utility.Controller.Statistic.xml" )
+                                ,"Interval to check for matching processes in seconds" )
+       ("counter-file,c"        ,po::value< fs::path >()->default_value( executablePath / "App.Utility.Controller.Counter.xml" )
                                 ,"Path to config file") 
        ("log-file,l"            ,po::value< fs::path >()->default_value( executablePath / "App.Utility.Controller.log" )
                                 ,"Path to logger config file")
+       ("config-file"           ,po::value< fs::path >()->default_value( executablePath / "etc" / "App.Utility.Controller.Config.xml" )
+                                ,"Path to configuration file")
        ("logger-config-file"    ,po::value< fs::path >()->default_value( executablePath / "etc" / "App.Utility.Controller.Logger.xml" )
-                                ,"Path to logger config file");
+                                ,"Path to logger configuration file");
 
    try
    {
@@ -56,18 +58,20 @@ int main( int argc, char** argv )
          return 1;
       }
 
+      fs::path const counterFilePath( vm[ "counter-file" ].as< fs::path >() );
       fs::path const logFilePath( vm[ "log-file" ].as< fs::path >() );
+      fs::path const configurationFilePath( vm[ "config-file" ].as< fs::path >() );
       fs::path const loggerConfigurationFilePath( vm[ "logger-config-file" ].as< fs::path >() );
-      fs::path const statisticFilePath( vm[ "statistic-file" ].as< fs::path >() );
       
       setenv("logfile.path", logFilePath.string().c_str(), 1);
       log4cxx::xml::DOMConfigurator::configure( loggerConfigurationFilePath.string() );
 
-      Lib::Controller::Matcher matcher;
-      matcher.add( "browser", { ".*browser.*" } );
-      matcher.add( "gvfs", { ".*gvfs.*" }, { ".*volume[-]monitor.*" } );
+      Lib::Controller::CMatcher matcher;
+      matcher.addRule( "browser", { ".*browser.*" } );
+      matcher.addRule( "gvfs", { ".*gvfs.*" }, { ".*volume[-]monitor.*" } );
       SL::App::Utility::ProgramController controller( 
-          statisticFilePath
+          configurationFilePath
+         ,counterFilePath
          ,std::move( matcher ) );
    }
    catch ( std::exception const& e )

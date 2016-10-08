@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Lib/Controller/include/CMatcher.h"
+#include "Lib/Controller/include/IMatcher.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -15,8 +15,10 @@ namespace Utility
    
    struct ProgramController
    {
-      ProgramController( boost::filesystem::path const& absoluteStatisticPath
-                        ,Lib::Controller::Matcher matcher );
+      ProgramController( 
+          boost::filesystem::path const& configurationFilePath
+         ,boost::filesystem::path const& counterFilePath
+         ,Lib::Controller::API::IMatcher const& matcher );
       
    private:
       log4cxx::LoggerPtr m_logger;

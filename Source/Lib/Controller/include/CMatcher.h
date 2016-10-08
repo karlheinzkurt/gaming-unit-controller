@@ -1,11 +1,11 @@
 #pragma once
 
+#include "IMatcher.h"
+
 #include "Lib/Infrastructure/API/include/IProcess.h"
 
 #include <string>
 #include <map>
-#include <set>
-#include <tuple>
 #include <regex>
 #include <functional>
 #include <iosfwd>
@@ -15,48 +15,36 @@ namespace Lib
 namespace Controller
 {
    using Infrastructure::API::IProcess;
-   using Infrastructure::API::IProcessSet;
 
-   struct Match
-   {
-      typedef std::set< std::reference_wrapper< IProcess const > > ProcessSetType;
+   struct CMatch : API::IMatch
+   {     
+      CMatch( std::string const& name, IProcess const& process );
       
-      Match( std::string const& name );
+      CMatch( std::string const& name, IProcess::SetType const& processes );
       
-      Match( Match const& ) = default;
-      Match& operator=( Match const& ) = default;
+      virtual std::string getName() const override;
       
-      Match& add( IProcess const& process );
-      Match& add( ProcessSetType const& processes );
+      virtual std::string toString() const override;
       
-      std::string const& getName() const;
-      ProcessSetType getProcesses() const;
+      virtual IProcess::SetType const& getProcesses() const override;
       
    private:   
       std::string m_name;
-      ProcessSetType m_processes;
+      IProcess::SetType m_processes;
    };
-   std::ostream& operator<<( std::ostream& os, Match const& match );
-      
-   struct Matcher
-   {
-      /* We use this comparator only for the result set here, 
-       * comparing only names would not fit as generic comparison. */
-      struct MatchComparator
-      {
-         bool operator()( Match const& a, Match const& b ) const
-         {  return a.getName() < b.getName(); }
-      };
-      typedef std::set< Match, MatchComparator > ResultSet; 
-      
-      Matcher& add( 
+  
+   struct CMatcher : API::IMatcher
+   {      
+      IMatcher& addRule( 
           std::string name
          ,std::initializer_list< std::string > whiteList
          ,std::initializer_list< std::string > blackList = {} );
+         
+      virtual std::string toString() const override;
       
-      ResultSet matches( IProcess const& process );
+      virtual API::IMatch::SetType matches( IProcess const& process ) const override;
       
-      ResultSet matches( IProcessSet::SetType const& process );
+      virtual API::IMatch::SetType matches( IProcess::SetType const& process ) const override;
       
    private:
       typedef std::map< std::string, std::tuple< std::regex, std::regex > > MapType;
