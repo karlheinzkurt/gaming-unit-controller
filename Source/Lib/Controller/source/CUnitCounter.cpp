@@ -11,9 +11,19 @@ namespace Controller
 {
 namespace Internal ///< Internal
 {
-   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle) : m_limit(limit), m_cycle(cycle), m_active(0), m_previousRun() {}
+   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle) : 
+       m_limit(limit)
+      ,m_cycle(cycle)
+      ,m_active(0)
+      ,m_previousRun() 
+   {}
    
-   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun) : m_limit(limit), m_cycle(cycle), m_active(active), m_previousRun(previousRun) {}
+   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun) :
+       m_limit(limit)
+      ,m_cycle(cycle)
+      ,m_active(active)
+      ,m_previousRun(previousRun) 
+   {}
    
    bool AUnitCounterBase::exceedsLimit( time_point_type const& point ) const
    {

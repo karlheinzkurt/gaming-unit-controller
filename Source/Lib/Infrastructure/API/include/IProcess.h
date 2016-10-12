@@ -43,6 +43,7 @@ namespace API
    };
    
    std::ostream& operator<<( std::ostream& os, IProcess const& process );
+   
    bool operator==( IProcess const& a, IProcess const& b );
    bool operator<( IProcess const& a, IProcess const& b );
 

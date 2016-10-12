@@ -36,6 +36,7 @@ namespace Controller
       std::string m_name;
       ProcessSetType m_processes;
    };
+   
    std::ostream& operator<<( std::ostream& os, Match const& match );
       
    struct Matcher
