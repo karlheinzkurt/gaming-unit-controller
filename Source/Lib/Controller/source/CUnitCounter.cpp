@@ -1,15 +1,16 @@
 
-#include "../include/Types.h"
-#include "../include/CCounter.h"
+#include "../include/CUnitCounter.h"
 
-#include <boost/algorithm/string/predicate.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace Lib
 {
 namespace Controller
 {
-   
+namespace Internal ///< Internal
+{
    AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle) : m_limit(limit), m_cycle(cycle), m_active(0), m_previousRun() {}
    
    AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun) : m_limit(limit), m_cycle(cycle), m_active(active), m_previousRun(previousRun) {}
@@ -87,7 +88,6 @@ namespace Controller
       os << getUnit();
       ptCounter.put( "unit", os.str() );
       ptCounter.put( "limit", m_limit.count() );
-      ptCounter.put( "cycle", m_cycle.count() );
       ptCounter.put( "active", m_active.count() );
       ptCounter.put( "previousRun", m_previousRun.time_since_epoch().count() );
       return std::move(ptCounter);
@@ -101,18 +101,20 @@ namespace Controller
    IUnitCounter::time_point_type CWeekCounter::getUnitBegin(time_point_type const& point)
    {
       namespace bg = boost::gregorian;
+      //namespace bp = boost::posix_time;
    
       auto const startOfWeek(bg::Monday); ///< Define start of the unit   
       
-      auto const timeType(std::chrono::system_clock::to_time_t(point));
+      time_t const timeType(std::chrono::system_clock::to_time_t(point));
       tm const localTime(*localtime(&timeType));
       bg::date date(bg::date_from_tm(localTime));
-                     
+      //bp::ptime time(bp::from_time_t(timeType));
+      
       if (date.day_of_week() != startOfWeek)
       {  date = bg::first_day_of_the_week_before(startOfWeek).get_date(date); }
       
       tm resultLocalTime = bg::to_tm(date);
-      resultLocalTime.tm_isdst = localTime.tm_isdst; ///< This is not correct in the week DST switching happens
+      resultLocalTime.tm_isdst = -1; ///< This is enough for our use case 
       resultLocalTime.tm_sec = resultLocalTime.tm_min = 0, resultLocalTime.tm_hour = 0;
       return std::chrono::system_clock::from_time_t(mktime(&resultLocalTime));
    }
@@ -126,76 +128,8 @@ namespace Controller
    {
       auto const timeType(std::chrono::system_clock::to_time_t(point));
       tm resultLocalTime(*localtime(&timeType));
+      resultLocalTime.tm_isdst = -1; ///< This is enough for our use case
       resultLocalTime.tm_sec = resultLocalTime.tm_min = resultLocalTime.tm_hour = 0;
-      resultLocalTime.tm_isdst = resultLocalTime.tm_isdst; ///< This is not correct in the week DST switching happens
       return std::chrono::system_clock::from_time_t(mktime(&resultLocalTime));
    }
-   
-   std::chrono::seconds getDefaultCycle()
-   {
-      return std::chrono::seconds(60);
-   }
-   
-   std::unique_ptr<IUnitCounter> CUnitCounterFactory::create(Unit unit, std::chrono::seconds limit, std::chrono::seconds cycle)
-   {
-      switch(unit)
-      {
-         case Unit::Day:  return std::make_unique<CDayCounter >(limit, cycle); break;
-         case Unit::Week: return std::make_unique<CWeekCounter>(limit, cycle); break;
-      }
-      throw CUnsupportedUnitException("Unsupported unit");
-   }
-   
-   std::unique_ptr<IUnitCounter> CUnitCounterFactory::create(boost::property_tree::ptree const& ptCounter)
-   {
-      std::istringstream is(ptCounter.get("unit", ""));
-      Unit unit;
-      is >> unit;
-      std::chrono::seconds const limit(ptCounter.get("limit", 0));
-      std::chrono::seconds const cycle(ptCounter.get("cycle", getDefaultCycle().count()));
-      std::chrono::seconds const active(ptCounter.get("active", 0));
-      IUnitCounter::time_point_type const previousRun(CDayCounter::time_point_type::duration(ptCounter.get("previousRun", 0)));
-      switch (unit)
-      {
-         case Unit::Day:  return std::make_unique<CDayCounter>(limit, cycle, active, previousRun); break;
-         case Unit::Week: return std::make_unique<CWeekCounter>(limit, cycle, active, previousRun); break;
-      }
-      throw CUnsupportedUnitException("Unsupported unit");
-   }  
-   
-   std::ostream& operator<<(std::ostream& os, Unit unit)
-   {
-      switch(unit)
-      {
-         case Unit::Day:  return os << "Day";  break;
-         case Unit::Week: return os << "Week"; break;
-      }
-      throw CUnsupportedUnitException("Unsupported unit");
-   }
-   
-   std::istream& operator>>(std::istream& is, Unit& unit)
-   {
-      std::string u;
-      is >> u;
-      if (boost::iequals("Day", u))
-      {
-         unit = Unit::Day;
-         return is;
-      }
-      else
-      if (boost::iequals("Week", u))
-      {
-         unit = Unit::Week;
-         return is;
-      }
-      throw CUnsupportedUnitException("Unsupported unit");
-   }
-   
-   std::ostream& operator<<(std::ostream& os, IUnitCounter const& counter)
-   {
-      return os 
-         << "Unit: "   << counter.getUnit()           << ", "
-         << "Limit: "  << counter.getLimit().count()  << "s, "
-         << "Active: " << counter.getActive().count() << "s";         
-   }   
-}}
+}}}

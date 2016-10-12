@@ -1,6 +1,7 @@
 
 #include "Lib/Controller/include/Types.h"
-#include "Lib/Controller/include/CCounter.h"
+#include "Lib/Controller/include/CUnitCounter.h"
+#include "Lib/Controller/include/CUnitCounterFactory.h"
 
 #include <chrono>
 #include <sstream>
@@ -9,11 +10,11 @@
 #include <gtest/gtest.h>
 
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include "boost/date_time/local_time/local_time.hpp"
 
-class TEST;
 using Lib::Controller::CUnitCounterFactory;
-using Lib::Controller::CDayCounter;
-using Lib::Controller::CWeekCounter;
+using Lib::Controller::Internal::CDayCounter;
+using Lib::Controller::Internal::CWeekCounter;
 
 CUnitCounterFactory counterFactory;
 
@@ -33,6 +34,19 @@ std::chrono::system_clock::time_point getTimePoint(std::string dateTime, bool ds
       tm.tm_isdst = 1;
    }
    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
+}
+
+TEST(local_date_time, time_point_convertion)
+{
+   auto const point(getTimePoint("27.03.2016 03:00:00", true));
+   auto const time(boost::posix_time::from_time_t(std::chrono::system_clock::to_time_t(point)));  
+   boost::local_time::time_zone_ptr const zone(new boost::local_time::posix_time_zone("CET+1CEST01:00:00,M3.5.0/2,M10.5.0/3"));
+   boost::local_time::local_date_time localTime(time, zone);
+
+   auto resultTm(to_tm(localTime));
+   auto resultPoint(std::chrono::system_clock::from_time_t(mktime(&resultTm)));
+   
+   EXPECT_EQ(point, resultPoint);
 }
 
 TEST(DayCounter, UnitBegin_NewYear)
@@ -87,7 +101,7 @@ TEST(DayCounter, UnitBegin_EndDST)
 TEST(DayCounter, UnitBegin_Fall)
 {
    CDayCounter c(std::chrono::hours(10));
-   EXPECT_EQ(getTimePoint("30.10.2016 00:00:00"), c.getUnitBegin(getTimePoint("30.10.2016 23:59:59")));
+   EXPECT_EQ(getTimePoint("30.10.2016 00:00:00", true), c.getUnitBegin(getTimePoint("30.10.2016 23:59:59")));
    EXPECT_EQ(getTimePoint("31.10.2016 00:00:00"), c.getUnitBegin(getTimePoint("31.10.2016 00:00:00")));
    EXPECT_EQ(getTimePoint("31.10.2016 00:00:00"), c.getUnitBegin(getTimePoint("31.10.2016 03:03:59")));
    EXPECT_EQ(getTimePoint("31.10.2016 00:00:00"), c.getUnitBegin(getTimePoint("31.10.2016 23:59:59")));

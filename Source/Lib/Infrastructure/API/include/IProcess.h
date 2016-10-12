@@ -14,7 +14,7 @@ namespace API
 {
    struct IProcess
    {            
-      virtual ~IProcess();
+      virtual ~IProcess() = default;
       
       virtual bool isRunning() const = 0;
       
@@ -35,7 +35,7 @@ namespace API
    {
       typedef std::set< std::unique_ptr< IProcess > > SetType;
       
-      virtual ~IProcessSet();
+      virtual ~IProcessSet() = default;
       
       virtual SetType get() = 0;
       
