@@ -15,30 +15,10 @@ namespace Lib
 namespace Controller
 {
    using Infrastructure::API::IProcess;
-
-   struct CMatch : API::IMatch
-   {     
-      CMatch( std::string const& name, IProcess const& process );
-      
-      CMatch( std::string const& name, IProcess::SetType const& processes );
-      
-      virtual std::string getName() const override;
-      
-      virtual std::string toString() const override;
-      
-      virtual IProcess::SetType const& getProcesses() const override;
-      
-   private:   
-      std::string m_name;
-      IProcess::SetType m_processes;
-   };
   
    struct CMatcher : API::IMatcher
    {      
-      IMatcher& addRule( 
-          std::string name
-         ,std::initializer_list< std::string > whiteList
-         ,std::initializer_list< std::string > blackList = {} );
+      virtual IMatcher& add( API::CRule rule ) override;
          
       virtual std::string toString() const override;
       

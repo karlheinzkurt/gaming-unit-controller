@@ -67,8 +67,21 @@ int main( int argc, char** argv )
       log4cxx::xml::DOMConfigurator::configure( loggerConfigurationFilePath.string() );
 
       Lib::Controller::CMatcher matcher;
-      matcher.addRule( "browser", { ".*browser.*" } );
-      matcher.addRule( "gvfs", { ".*gvfs.*" }, { ".*volume[-]monitor.*" } );
+      matcher.add([]
+      { 
+         Lib::Controller::API::CRule rule;
+         rule.name = "browser";
+         rule.whitelist = { ".*browser.*" };
+         return rule;
+      }());
+      matcher.add([]
+      { 
+         Lib::Controller::API::CRule rule;
+         rule.name = "gvfs";
+         rule.whitelist = { ".*gvfs.*" };
+         rule.blacklist = { ".*volume[-]monitor.*" };
+         return rule;
+      }());
       SL::App::Utility::ProgramController controller( 
           configurationFilePath
          ,counterFilePath

@@ -3,6 +3,7 @@
 #include "Lib/Infrastructure/API/include/IProcess.h"
 
 #include <string>
+#include <list>
 #include <iosfwd>
 
 namespace Lib
@@ -29,10 +30,19 @@ namespace API
    std::ostream& operator<<( std::ostream& os, IMatch const& match );
    
    bool operator<( IMatch const& a, IMatch const& b );
+   
+   struct CRule
+   {
+      std::string name;
+      std::list<std::string> whitelist;
+      std::list<std::string> blacklist;      
+   };   
       
    struct IMatcher
    {
-      virtual ~IMatcher() = default;      
+      virtual ~IMatcher() = default;
+      
+      virtual IMatcher& add( CRule rule ) = 0;
       
       virtual std::string toString() const = 0;
       

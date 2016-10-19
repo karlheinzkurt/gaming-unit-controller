@@ -10,6 +10,23 @@ namespace Lib
 {
 namespace Controller
 {
+   
+   struct CMatch : API::IMatch
+   {     
+      CMatch( std::string const& name, IProcess const& process );
+      
+      CMatch( std::string const& name, IProcess::SetType const& processes );
+      
+      virtual std::string getName() const override;
+      
+      virtual std::string toString() const override;
+      
+      virtual IProcess::SetType const& getProcesses() const override;
+      
+   private:   
+      std::string m_name;
+      IProcess::SetType m_processes;
+   };
       
    CMatch::CMatch( std::string const& name, IProcess const& process ) : m_name( name ), m_processes() 
    {
@@ -40,14 +57,11 @@ namespace Controller
    API::IProcess::SetType const& CMatch::getProcesses() const
    {  return m_processes; }
    
-   API::IMatcher& CMatcher::addRule( 
-       std::string name
-      ,std::initializer_list< std::string > whiteList
-      ,std::initializer_list< std::string > blackList /*= {}*/ )
+   API::IMatcher& CMatcher::add( API::CRule rule )
    {
-      m_matcher.emplace( MapType::value_type( name, std::make_tuple( 
-          std::regex( std::string( "(" ) + boost::algorithm::join( whiteList, "|" ) + ")", std::regex_constants::icase )
-         ,std::regex( std::string( "(" ) + boost::algorithm::join( blackList, "|" ) + ")", std::regex_constants::icase )
+      m_matcher.emplace( MapType::value_type( rule.name, std::make_tuple( 
+          std::regex( std::string( "(" ) + boost::algorithm::join( rule.whitelist, "|" ) + ")", std::regex_constants::icase )
+         ,std::regex( std::string( "(" ) + boost::algorithm::join( rule.blacklist, "|" ) + ")", std::regex_constants::icase )
       ) ) );
       return *this;
    }
