@@ -88,7 +88,7 @@ namespace Controller
       return results;
    }
    
-   void Statistics::save()
+   void Statistics::save() const
    {
       pt::ptree tree;
       tree.put( "statistics.lastRun", m_impl->m_now.time_since_epoch().count() );

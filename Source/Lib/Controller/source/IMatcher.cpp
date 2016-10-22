@@ -1,6 +1,8 @@
 
 #include "../include/IMatcher.h"
 
+#include <ostream>
+
 namespace Lib
 {
 namespace Controller
@@ -17,10 +19,5 @@ namespace API
    {  
       return a.getName() < b.getName(); 
    }
-   
-   std::ostream& operator<<( std::ostream& os, IMatcher const& matcher )
-   {
-      return os << matcher.toString();
-   }
-
+      
 }}}

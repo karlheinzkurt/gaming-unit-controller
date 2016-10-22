@@ -37,6 +37,11 @@ namespace Controller
       throw CUnsupportedUnitException("Unsupported unit");
    }
    
+   bool operator==(IUnitCounter const& a, IUnitCounter const& b)
+   {
+      return std::make_tuple(a.getUnit(), a.getLimit(), a.getActive()) == std::make_tuple(b.getUnit(), b.getLimit(), b.getActive());
+   }
+   
    std::ostream& operator<<(std::ostream& os, IUnitCounter const& counter)
    {
       return os << counter.toString();

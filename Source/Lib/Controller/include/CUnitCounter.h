@@ -28,7 +28,7 @@ namespace Internal ///< Internal
       virtual std::string toString() const override;
       
       virtual boost::property_tree::ptree serialize() const override;
-      
+           
    protected:      
       virtual bool exceedsLimit( time_point_type const& point ) const override;
       

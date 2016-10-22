@@ -1,10 +1,12 @@
 #pragma once
 
+#include "CRule.h"
 #include "Lib/Infrastructure/API/include/IProcess.h"
 
 #include <string>
-#include <list>
-#include <iosfwd>
+#include <iosfwd> ///< fwd only
+
+#include <boost/property_tree/ptree_fwd.hpp> ///< fwd only
 
 namespace Lib
 {
@@ -30,27 +32,20 @@ namespace API
    std::ostream& operator<<( std::ostream& os, IMatch const& match );
    
    bool operator<( IMatch const& a, IMatch const& b );
-   
-   struct CRule
-   {
-      std::string name;
-      std::list<std::string> whitelist;
-      std::list<std::string> blacklist;      
-   };   
-      
+         
    struct IMatcher
    {
       virtual ~IMatcher() = default;
       
       virtual IMatcher& add( CRule rule ) = 0;
       
-      virtual std::string toString() const = 0;
-      
+      virtual CRule::SetType const& getRules() const = 0;
+           
       virtual IMatch::SetType matches( IProcess const& process ) const = 0;
       
       virtual IMatch::SetType matches( IProcess::SetType const& process ) const = 0;
+      
+      virtual boost::property_tree::ptree serialize() const = 0;
    };
-   
-   std::ostream& operator<<( std::ostream& os, IMatcher const& matcher );
 
 }}}

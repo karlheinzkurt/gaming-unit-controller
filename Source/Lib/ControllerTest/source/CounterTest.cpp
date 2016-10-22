@@ -9,8 +9,9 @@
 
 #include <gtest/gtest.h>
 
+#include <boost/property_tree/ptree.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
-#include "boost/date_time/local_time/local_time.hpp"
+#include <boost/date_time/local_time/local_time.hpp>
 
 using Lib::Controller::CUnitCounterFactory;
 using Lib::Controller::Internal::CDayCounter;
@@ -359,4 +360,17 @@ TEST( CounterTest, HourPerDay_Split4 )
    
    counter->doUpdate(now);
    EXPECT_TRUE(counter->exceedsLimit(now));
+}
+
+TEST(Counter, SerializeRoundTrip)
+{ 
+   auto now(getTimePoint("29.02.2016 09:13:00"));
+   auto source(counterFactory.create(Lib::Controller::Unit::Day, std::chrono::hours(1)));
+   source->doUpdate(now);
+   source->doUpdate(now + std::chrono::minutes(1));
+   source->doUpdate(now + std::chrono::minutes(2));
+   boost::property_tree::ptree pt = source->serialize();
+   auto destination = counterFactory.create(pt);
+   EXPECT_TRUE(source->getActive().count() > 0);
+   EXPECT_EQ(*source, *destination);
 }

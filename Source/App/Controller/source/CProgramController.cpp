@@ -1,8 +1,12 @@
 
 #include "../include/CProgramController.h"
 
-#include "Lib/Infrastructure/Linux/include/CSystem.h"
 #include "Lib/Controller/include/CStatistics.h"
+#include "Lib/Controller/include/CMatcherFactory.h"
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/filesystem.hpp>
 
 namespace SL
 {
@@ -13,23 +17,47 @@ namespace Utility
    using Lib::Infrastructure::API::IProcess;
    using Lib::Controller::API::IMatcher;
    using Lib::Controller::API::IMatch;
+   using Lib::Controller::API::CRule;
+   using Lib::Controller::CMatcherFactory;
    using Lib::Controller::Statistics;
    
    ProgramController::ProgramController( 
-       boost::filesystem::path const& configurationFilePath
-      ,boost::filesystem::path const& counterFilePath
-      ,IMatcher const& matcher ) : 
-       m_logger( log4cxx::Logger::getLogger( "App.Utility.Controller" ) )
+       Lib::Infrastructure::API::ISystem& system
+      ,boost::filesystem::path const& configurationFilePath
+      ,boost::filesystem::path const& counterFilePath ) : 
+       m_system(system)
+      ,m_configurationFilePath(configurationFilePath)
+      ,m_logger( log4cxx::Logger::getLogger( "App.Utility.Controller" ) )
    {
+      if ( !boost::filesystem::exists( m_configurationFilePath ) )
+      {
+         m_matcher = CMatcherFactory().create();
+         m_matcher->add(CRule("example", {".*match.*", ".*or_match.*"}, {".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
+         auto examplePath = boost::filesystem::change_extension(m_configurationFilePath, "example.xml");
+         save(examplePath);
+         
+         std::ostringstream os;
+         os << "Configuration file " << m_configurationFilePath << " does not exist, see " << examplePath << " as an example to create one";
+         throw std::invalid_argument(os.str());
+      }
+      else
+      {
+         if ( !boost::filesystem::is_regular_file( m_configurationFilePath ) )
+         {  
+            std::ostringstream os;
+            os << "Path exists but is not a file: " << m_configurationFilePath; 
+            throw std::invalid_argument(os.str());
+         }
+      }
+      load(m_configurationFilePath);
       
-      Lib::Infrastructure::Linux::CSystem system;
       auto const processes(system.getRunningProcesses());
       LOG4CXX_INFO( m_logger, "Processes found: " << processes.size() );
             
       auto const signallableProcesses(system.getSignallableProcesses());
       LOG4CXX_INFO( m_logger, "Signallable processes found: " << signallableProcesses.size() );
-            
-      auto const matches( matcher.matches( signallableProcesses ) );
+           
+      auto const matches( m_matcher->matches( signallableProcesses ) );
       LOG4CXX_INFO( m_logger, "Matching processes found: " << std::accumulate( 
           matches.begin(), matches.end(), 0
          ,[]( int v, auto const& match ){ return v + match->getProcesses().size(); } ) );
@@ -48,6 +76,25 @@ namespace Utility
       {
          /** kill exceeding processes */
          LOG4CXX_INFO( m_logger, exceed ); 
+      }
+   }
+   
+   void ProgramController::save(boost::filesystem::path const& path) const
+   {
+      boost::property_tree::ptree tree;
+      tree.add_child("matcher", m_matcher->serialize());
+      boost::property_tree::write_xml( path.string(), tree, std::locale(), boost::property_tree::xml_writer_make_settings<std::string>( ' ', 2 ) );
+   }
+   
+   void ProgramController::load(boost::filesystem::path const& path)
+   {
+      boost::property_tree::ptree tree;
+      boost::property_tree::read_xml( path.string(), tree, boost::property_tree::xml_parser::trim_whitespace );
+      auto ptMatcher( tree.get_child_optional( "matcher" ) );
+      if ( ptMatcher )
+      {
+         CMatcherFactory matcherFactory;
+         m_matcher = matcherFactory.create(*ptMatcher);
       }
    }
 

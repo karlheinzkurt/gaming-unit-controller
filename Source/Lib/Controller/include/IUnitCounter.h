@@ -65,6 +65,7 @@ namespace Controller
       virtual boost::property_tree::ptree serialize() const = 0;
    };
    
+   bool operator==(IUnitCounter const& a, IUnitCounter const& b);
    std::ostream& operator<<(std::ostream& os, IUnitCounter const& counter);
    
    struct CUnsupportedUnitException : public std::logic_error { using std::logic_error::logic_error; };

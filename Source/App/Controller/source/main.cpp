@@ -1,7 +1,7 @@
 
 #include "../include/CProgramController.h"
 
-#include "Lib/Controller/include/CMatcher.h"
+#include "Lib/Infrastructure/Linux/include/CSystem.h"
 
 #include <log4cxx/xml/domconfigurator.h>
 
@@ -9,8 +9,6 @@
 #include <boost/filesystem.hpp>
 
 #include <iostream>
-#include <chrono>
-
 #include <csignal>
 
 void signalHandler( int sig )
@@ -30,7 +28,7 @@ int main( int argc, char** argv )
    namespace po = boost::program_options;
    namespace fs = boost::filesystem;
    
-   fs::path const executablePath( /*fs::canonical( fs::absolute(*/ fs::path( argv[0] ).parent_path() /*) )*/ );
+   fs::path const executablePath(fs::path( argv[0] ).parent_path());
    
    po::options_description desc("General options");
    desc.add_options()
@@ -66,26 +64,8 @@ int main( int argc, char** argv )
       setenv("logfile.path", logFilePath.string().c_str(), 1);
       log4cxx::xml::DOMConfigurator::configure( loggerConfigurationFilePath.string() );
 
-      Lib::Controller::CMatcher matcher;
-      matcher.add([]
-      { 
-         Lib::Controller::API::CRule rule;
-         rule.name = "browser";
-         rule.whitelist = { ".*browser.*" };
-         return rule;
-      }());
-      matcher.add([]
-      { 
-         Lib::Controller::API::CRule rule;
-         rule.name = "gvfs";
-         rule.whitelist = { ".*gvfs.*" };
-         rule.blacklist = { ".*volume[-]monitor.*" };
-         return rule;
-      }());
-      SL::App::Utility::ProgramController controller( 
-          configurationFilePath
-         ,counterFilePath
-         ,std::move( matcher ) );
+      Lib::Infrastructure::Linux::CSystem system;
+      SL::App::Utility::ProgramController controller(system, configurationFilePath, counterFilePath);
    }
    catch ( std::exception const& e )
    {

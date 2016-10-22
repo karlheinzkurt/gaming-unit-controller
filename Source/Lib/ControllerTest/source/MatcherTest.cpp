@@ -1,10 +1,14 @@
 
+#include "Lib/Controller/include/CMatcher.h"
+#include "Lib/Controller/include/CMatcherFactory.h"
+
+#include <boost/property_tree/ptree.hpp>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "Lib/Controller/include/CMatcher.h"
-
 using Lib::Controller::CMatcher;
+using Lib::Controller::CMatcherFactory;
 using Lib::Controller::API::IMatch;
 using Lib::Controller::API::CRule;
 
@@ -20,12 +24,23 @@ struct CProcessMock: Lib::Infrastructure::API::IProcess
    MOCK_CONST_METHOD0(clone, std::unique_ptr< IProcess >());
 };
 
-TEST(MatcherTest, Match)
+TEST(Matcher, NoRule)
 {
-   CMatcher matcher;
    ::testing::StrictMock<CProcessMock> processMock;
-   EXPECT_CALL(processMock, getCommandLine()).WillRepeatedly(::testing::Return("running --while --done"));;
+   EXPECT_CALL(processMock, getCommandLine()).WillRepeatedly(::testing::Return(""));;   
    
-   matcher.add(CRule()).add(CRule());
+   CMatcher matcher;
    EXPECT_EQ(size_t(0), matcher.matches(processMock).size());
+}
+
+TEST(Matcher, SerializeRoundTrip)
+{ 
+   CMatcherFactory factory;
+   auto source = factory.create();
+   source->add(CRule("bli", {"java.+", "blub$"}, {".*eclipse.*"}));
+   source->add(CRule("bla", {"java.+"}, {".*jenkins.*", "^blabla.*"}));
+   boost::property_tree::ptree pt = source->serialize();
+   auto destination = factory.create(pt);
+   
+   EXPECT_EQ(source->getRules(), destination->getRules());
 }

@@ -4,32 +4,28 @@
 
 #include "Lib/Infrastructure/API/include/IProcess.h"
 
-#include <string>
-#include <map>
-#include <regex>
-#include <functional>
-#include <iosfwd>
-
 namespace Lib
 {
 namespace Controller
 {
    using Infrastructure::API::IProcess;
-   
   
    struct CMatcher : API::IMatcher
-   {      
+   {           
       virtual IMatcher& add( API::CRule rule ) override;
          
-      virtual std::string toString() const override;
-      
+      virtual API::CRule::SetType const& getRules() const override;
+               
       virtual API::IMatch::SetType matches( IProcess const& process ) const override;
       
       virtual API::IMatch::SetType matches( IProcess::SetType const& process ) const override;
       
+      virtual boost::property_tree::ptree serialize() const override;
+      
+      static std::unique_ptr<API::IMatcher> deserialize(boost::property_tree::ptree const&);
+      
    private:
-      typedef std::map< std::string, std::tuple< std::regex, std::regex > > MapType;
-      MapType m_matcher;
+      API::CRule::SetType m_rules;
    };
 
 }}

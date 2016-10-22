@@ -22,7 +22,7 @@ namespace Controller
       
    private:
       void load();
-      void save();
+      void save() const;
    
    private:
       struct Impl;

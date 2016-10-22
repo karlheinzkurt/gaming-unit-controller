@@ -16,6 +16,7 @@ namespace Controller
     */
    struct CMatcherFactory
    {
+      std::unique_ptr<API::IMatcher> create();
       std::unique_ptr<API::IMatcher> create(boost::property_tree::ptree const&);
    };
 }}
