@@ -10,7 +10,7 @@
 using Lib::Controller::CMatcher;
 using Lib::Controller::CMatcherFactory;
 using Lib::Controller::API::IMatch;
-using Lib::Controller::API::CRule;
+using Lib::Controller::API::CMatchingRule;
 
 struct CProcessMock: Lib::Infrastructure::API::IProcess
 {
@@ -37,8 +37,8 @@ TEST(Matcher, SerializeRoundTrip)
 { 
    CMatcherFactory factory;
    auto source = factory.create();
-   source->add(CRule("bli", {"java.+", "blub$"}, {".*eclipse.*"}));
-   source->add(CRule("bla", {"java.+"}, {".*jenkins.*", "^blabla.*"}));
+   source->add(CMatchingRule("bli", {"java.+", "blub$"}, {".*eclipse.*"}));
+   source->add(CMatchingRule("bla", {"java.+"}, {".*jenkins.*", "^blabla.*"}));
    boost::property_tree::ptree pt = source->serialize();
    auto destination = factory.create(pt);
    

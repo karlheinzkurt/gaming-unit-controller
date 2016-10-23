@@ -17,7 +17,7 @@ namespace Utility
    using Lib::Infrastructure::API::IProcess;
    using Lib::Controller::API::IMatcher;
    using Lib::Controller::API::IMatch;
-   using Lib::Controller::API::CRule;
+   using Lib::Controller::API::CMatchingRule;
    using Lib::Controller::CMatcherFactory;
    using Lib::Controller::Statistics;
    
@@ -32,8 +32,8 @@ namespace Utility
       if ( !boost::filesystem::exists( m_configurationFilePath ) )
       {
          m_matcher = CMatcherFactory().create();
-         m_matcher->add(CRule("example", {".*match.*", ".*or_match.*"}, {".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
-         auto examplePath = boost::filesystem::change_extension(m_configurationFilePath, "example.xml");
+         m_matcher->add(CMatchingRule("example", {".*match.*", ".*or_match.*"}, {".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
+         auto examplePath = boost::filesystem::change_extension(m_configurationFilePath, "Example.xml");
          save(examplePath);
          
          std::ostringstream os;

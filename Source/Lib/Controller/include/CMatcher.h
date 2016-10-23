@@ -12,9 +12,9 @@ namespace Controller
   
    struct CMatcher : API::IMatcher
    {           
-      virtual IMatcher& add( API::CRule rule ) override;
+      virtual IMatcher& add( API::CMatchingRule rule ) override;
          
-      virtual API::CRule::SetType const& getRules() const override;
+      virtual API::CMatchingRule::SetType const& getRules() const override;
                
       virtual API::IMatch::SetType matches( IProcess const& process ) const override;
       
@@ -25,7 +25,7 @@ namespace Controller
       static std::unique_ptr<API::IMatcher> deserialize(boost::property_tree::ptree const&);
       
    private:
-      API::CRule::SetType m_rules;
+      API::CMatchingRule::SetType m_rules;
    };
 
 }}

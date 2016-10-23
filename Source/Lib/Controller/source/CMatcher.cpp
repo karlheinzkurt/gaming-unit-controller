@@ -46,13 +46,13 @@ namespace Controller
       IProcess::SetType m_processes;
    };
    
-   API::IMatcher& CMatcher::add( API::CRule rule )
+   API::IMatcher& CMatcher::add( API::CMatchingRule rule )
    {
       m_rules.emplace(std::move(rule));
       return *this;
    }
    
-   API::CRule::SetType const& CMatcher::getRules() const
+   API::CMatchingRule::SetType const& CMatcher::getRules() const
    {
       return m_rules;
    }
@@ -96,25 +96,7 @@ namespace Controller
       boost::property_tree::ptree pt;
       std::for_each(m_rules.begin(), m_rules.end(), [&](auto const& rule)
       {
-         boost::property_tree::ptree ptRule;
-         ptRule.put("name", rule.getName());
-         {
-            boost::property_tree::ptree ptWhitelist;
-            for (auto const& e : rule.getWhitelist())
-            {
-               ptWhitelist.add("entry", e);
-            }
-            ptRule.add_child("whitelist", ptWhitelist);
-         }
-         {
-            boost::property_tree::ptree ptBlacklist;
-            for (auto const& e : rule.getBlacklist())
-            {
-               ptBlacklist.add("entry", e);
-            }
-            ptRule.add_child("blacklist", ptBlacklist);
-         }
-         pt.add_child( "rules.rule", ptRule);
+         pt.add_child( "rules.rule", rule.serialize());
       });
       return std::move(pt);
    }
@@ -124,18 +106,7 @@ namespace Controller
       auto matcher(std::make_unique<CMatcher>());
       for (auto const& ptRule : ptMatch.get_child( "rules" ).get_child( "" ))
       {
-         auto name = ptRule.second.get< std::string >( "name" );
-         std::list<std::string> whitelist;
-         for (auto const& ptWhitelist : ptRule.second.get_child( "whitelist" ))
-         {
-            whitelist.emplace_back(ptWhitelist.second.get< std::string >(""));
-         }
-         std::list<std::string> blacklist;
-         for (auto const& ptBlacklist : ptRule.second.get_child( "blacklist" ))
-         {
-            blacklist.emplace_back(ptBlacklist.second.get< std::string >(""));
-         }
-         matcher->add(API::CRule(name, whitelist, blacklist));
+         matcher->add(API::CMatchingRule::deserialize(ptRule.second));
       }
       return std::move(matcher);      
    }

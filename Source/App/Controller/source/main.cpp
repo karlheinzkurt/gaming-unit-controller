@@ -15,7 +15,7 @@ void signalHandler( int sig )
 {
    switch(sig)
    {
-      case SIGHUP:  {} break;
+      case SIGHUP:  {} break; ///< \todo Re-read config and create a new instance of CProgramController
       case SIGTERM: {  exit(0); } break;
    }	
 }

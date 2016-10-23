@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CRule.h"
+#include "CMatchingRule.h"
 #include "Lib/Infrastructure/API/include/IProcess.h"
 
 #include <string>
@@ -37,9 +37,9 @@ namespace API
    {
       virtual ~IMatcher() = default;
       
-      virtual IMatcher& add( CRule rule ) = 0;
+      virtual IMatcher& add( CMatchingRule rule ) = 0;
       
-      virtual CRule::SetType const& getRules() const = 0;
+      virtual CMatchingRule::SetType const& getRules() const = 0;
            
       virtual IMatch::SetType matches( IProcess const& process ) const = 0;
       
