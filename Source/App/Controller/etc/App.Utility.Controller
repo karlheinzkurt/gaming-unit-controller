@@ -1,0 +1,42 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:       App.Utility.Controller
+# Required-Start: $local_fs $remote_fs $syslog $network
+# Required-Stop:  $local_fs $remote_fs $syslog $network
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Description:    Creates App.Utility.Controller
+### END INIT INFO
+
+DAEMON=App.Utility.Controller
+DAEMON_OPTIONS=" -l -s -v D"
+DAEMON_PATH=/usr/share/App.Utility
+MSGDEV=/dev/kmsg
+PIDFILE=/var/run/$DAEMON.pid
+LOGFILE=/var/log/$DAEMON.log
+
+case "$1" in
+  start)
+	# start the daemon 
+	/sbin/start-stop-daemon --start --quiet --make-pidfile --pidfile $PIDFILE --background --startas /bin/bash -- -c "exec $DAEMON_PATH/$DAEMON $DAEMON_OPTIONS > $LOGFILE 2>&1"
+	/bin/echo "$DAEMON started" > $MSGDEV
+	;;
+  stop)
+	# stop the daemon
+	/sbin/start-stop-daemon --stop --quiet --make-pidfile --pidfile $PIDFILE --startas /bin/bash -- -c "exec $DAEMON_PATH/$DAEMON $DAEMON_OPTIONS > $LOGFILE 2>&1"
+	/bin/echo "$DAEMON stopped" > $MSGDEV
+	;;
+  restart|force-reload)
+	$0 stop
+	/bin/sleep 1
+	$0 start
+	;;
+  *)
+	N=/etc/init.d/$DAEMON
+	/bin/echo "Usage: $N {start|stop|restart}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
