@@ -4,6 +4,8 @@
 
 #include "Lib/Infrastructure/API/include/IProcess.h"
 
+#include <log4cxx/logger.h>
+
 namespace Lib
 {
 namespace Controller
@@ -12,6 +14,8 @@ namespace Controller
   
    struct CMatcher : API::IMatcher
    {           
+      CMatcher();
+      
       virtual IMatcher& add( API::CMatchingRule rule ) override;
          
       virtual API::CMatchingRule::SetType const& getRules() const override;
@@ -25,6 +29,7 @@ namespace Controller
       static std::unique_ptr<API::IMatcher> deserialize(boost::property_tree::ptree const&);
       
    private:
+      log4cxx::LoggerPtr m_logger;
       API::CMatchingRule::SetType m_rules;
    };
 

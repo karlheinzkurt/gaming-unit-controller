@@ -33,7 +33,7 @@
   <!-- the root logger -->
   <root>
      <priority value="all" />
-     <level value="warn" />
+     <level value="debug" />
      <appender-ref ref="RollingFileAppender"/>
      <!--<appender-ref ref="ConsoleAppender"/>-->
      <!--<appender-ref ref="SocketAppender"/>-->
@@ -41,6 +41,10 @@
 
   <!-- Specify the level for some specific categories -->
   <category name="App.Utility.Controller" >
+     <level value="debug"/>
+     <appender-ref ref="ConsoleAppender"/>
+  </category>
+  <category name="Controller.CMatcher" >
      <level value="debug"/>
      <appender-ref ref="ConsoleAppender"/>
   </category>

@@ -12,12 +12,12 @@ namespace Controller
    
    struct CMatch : API::IMatch
    {     
-      CMatch( std::string const& name, IProcess const& process )
+      CMatch( std::string const& name, IProcess const& process ) : m_name(name)
       {
          m_processes.emplace(process.clone());
       }
       
-      CMatch( std::string const& name, IProcess::SetType const& processes )
+      CMatch( std::string const& name, IProcess::SetType const& processes ) : m_name(name)
       {  
          for ( auto& process : processes )
          {  
@@ -46,6 +46,10 @@ namespace Controller
       IProcess::SetType m_processes;
    };
    
+   CMatcher::CMatcher() :
+      m_logger( log4cxx::Logger::getLogger( "Controller.CMatcher" ) )
+   {}
+   
    API::IMatcher& CMatcher::add( API::CMatchingRule rule )
    {
       m_rules.emplace(std::move(rule));
@@ -67,6 +71,7 @@ namespace Controller
       {
          if (rule.matches(process.getCommandLine()))
          {
+            LOG4CXX_TRACE(m_logger, "Rule '" + rule.getName() + "' matches: " + process.toString());
             temporary[rule.getName()].emplace(process.clone());
          }  
       }
