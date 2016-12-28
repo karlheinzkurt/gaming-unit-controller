@@ -31,7 +31,7 @@ namespace Controller
       is >> unit;
       std::chrono::seconds const limit(ptCounter.get("limit", 0));
       std::chrono::seconds const active(ptCounter.get("active", 0));
-      IUnitCounter::time_point_type const previousRun(IUnitCounter::time_point_type::duration(ptCounter.get("previousRun", 0)));
+      IUnitCounter::time_point_type const previousRun(IUnitCounter::time_point_type::duration(ptCounter.get<int>("previousRun")));
       
       /** Update cycle has to be used from parameter, otherwise it could 
        *  lead to not properly working counters, because it has to match the cycle the update

@@ -117,6 +117,9 @@ namespace Internal ///< Internal
       
    IUnitCounter::time_point_type CWeekCounter::getUnitBegin(time_point_type const& point)
    {
+      if (point == time_point_type())
+      {  return point; }
+      
       time_t const timeType(std::chrono::system_clock::to_time_t(point));
       tm const localTime(*localtime(&timeType));
       boost::gregorian::date date(boost::gregorian::date_from_tm(localTime));
@@ -138,6 +141,9 @@ namespace Internal ///< Internal
    
    IUnitCounter::time_point_type CDayCounter::getUnitBegin(time_point_type const& point)
    {
+      if (point == time_point_type())
+      {  return point; }
+      
       auto const timeType(std::chrono::system_clock::to_time_t(point));
       tm resultLocalTime(*localtime(&timeType));
       resultLocalTime.tm_isdst = -1; ///< This is enough for our use case
