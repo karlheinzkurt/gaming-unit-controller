@@ -19,6 +19,25 @@ TEST(Matcher, NoRuleNoCommandLineNoMatch)
    EXPECT_EQ(size_t(0), matcher.matches(process).size());
 }
 
+TEST(Matcher, NoRuleNoMatch)
+{
+   auto process(std::make_shared<::testing::NiceMock<Infrastructure::Mock::CProcess>>());
+   EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return("/usr/bin/java -Djava.awt.headless=true -jar /usr/share/jenkins/jenkins.war --webroot=/var/cache/jenkins/war --httpPort=9090"));
+   
+   CMatcher matcher;
+   EXPECT_EQ(size_t(0), matcher.matches(process).size());
+}
+
+TEST(Matcher, NoCommandLineNoMatch)
+{
+   auto process(std::make_shared<::testing::NiceMock<Infrastructure::Mock::CProcess>>());
+   EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return(""));
+   
+   CMatcher matcher;
+   matcher.add(CMatchingRule("thatRule", {".*java.*jenkins.*"}, {}));
+   EXPECT_EQ(size_t(0), matcher.matches(process).size());
+}
+
 TEST(Matcher, MatchingRule)
 {
    auto process(std::make_shared<::testing::NiceMock<Infrastructure::Mock::CProcess>>());
