@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(GamingUnitController)
+project(ProgramController)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 
@@ -65,5 +65,5 @@ SET(GMOCK_ALL_LIBRARIES
    "${binary_dir}/googlemock/libgmock_main.a"
    pthread)
 
-add_subdirectory(Lib)
-add_subdirectory(App)
+add_subdirectory(Infrastructure)
+add_subdirectory(Utility)
