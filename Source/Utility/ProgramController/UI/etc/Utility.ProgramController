@@ -1,17 +1,17 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:       App.Utility.Controller
+# Provides:       Utility.ProgramController
 # Required-Start: $local_fs $remote_fs $syslog $network
 # Required-Stop:  $local_fs $remote_fs $syslog $network
 # Default-Start:  2 3 4 5
 # Default-Stop:   0 1 6
-# Description:    Creates App.Utility.Controller
+# Description:    Handles actions for Utility.ProgramController
 ### END INIT INFO
 
-DAEMON=App.Utility.Controller
+DAEMON=Utility.ProgramController
 DAEMON_OPTIONS=" -l -s -v D"
-DAEMON_PATH=/usr/share/App.Utility
+DAEMON_PATH=/usr/share/Utility
 MSGDEV=/dev/kmsg
 PIDFILE=/var/run/$DAEMON.pid
 LOGFILE=/var/log/$DAEMON.log
