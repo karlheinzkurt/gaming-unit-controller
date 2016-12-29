@@ -110,10 +110,4 @@ namespace Linux
       
       return !isRunning();
    }
-   
-   std::unique_ptr< API::IProcess > CProcess::clone() const
-   {
-      return std::make_unique<CProcess>(*this);
-   }
-   
 }}

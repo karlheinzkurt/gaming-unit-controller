@@ -12,16 +12,16 @@ namespace ProgramController
    
    struct CMatch : API::IMatch
    {     
-      CMatch( std::string const& name, IProcess const& process ) : m_name(name)
+      CMatch( std::string const& name, std::shared_ptr<IProcess> const& process ) : m_name(name)
       {
-         m_processes.emplace(process.clone());
+         m_processes.emplace(process);
       }
       
       CMatch( std::string const& name, IProcess::SetType const& processes ) : m_name(name)
       {  
          for ( auto& process : processes )
          {  
-            m_processes.emplace(process->clone());
+            m_processes.emplace(process);
          }      
       }
       
@@ -31,9 +31,9 @@ namespace ProgramController
       virtual std::string toString() const override
       {  
          std::ostringstream os;
-         os << getName() << ":" << std::accumulate(m_processes.begin(), m_processes.end(), std::string(), [](std::string v, std::unique_ptr<IProcess> const& p)
+         os << getName() << ":" << std::accumulate(m_processes.begin(), m_processes.end(), std::string(), [](std::string v, std::shared_ptr<IProcess> const& process)
          {
-            return v + " " + std::to_string(p->getProcessId());
+            return v + " " + std::to_string(process->getProcessId());
          });
          return os.str();
       }
@@ -61,7 +61,7 @@ namespace ProgramController
       return m_rules;
    }
      
-   API::IMatch::SetType CMatcher::matches( IProcess const& process ) const
+   API::IMatch::SetType CMatcher::matches( std::shared_ptr<IProcess> const& process ) const
    {
       if ( m_rules.empty() )
       {  return API::IMatch::SetType(); }
@@ -69,10 +69,10 @@ namespace ProgramController
       std::map< std::string, IProcess::SetType > temporary;
       for ( auto const& rule : m_rules )
       {
-         if (rule.matches(process.getCommandLine()))
+         if (rule.matches(process->getCommandLine()))
          {
-            LOG4CXX_TRACE(m_logger, "Rule '" + rule.getName() + "' matches: " + process.toString());
-            temporary[rule.getName()].emplace(process.clone());
+            LOG4CXX_TRACE(m_logger, "Rule '" + rule.getName() + "' matches: " + process->toString());
+            temporary[rule.getName()].emplace(process);
          }  
       }
       
@@ -86,9 +86,9 @@ namespace ProgramController
       std::map< std::string, IProcess::SetType > temporary;
       for ( auto& process : processes )
       {  
-         for ( auto const& match : matches( *process ) )
+         for ( auto const& match : matches( process ) )
          {
-            temporary[ match->getName() ].emplace(process->clone());
+            temporary[ match->getName() ].emplace(process);
          }
       }
       API::IMatch::SetType results;

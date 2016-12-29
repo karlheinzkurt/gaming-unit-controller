@@ -32,8 +32,6 @@ namespace Linux
       virtual bool terminateAndWait( std::chrono::seconds const& timeout ) override;
       
       virtual bool killAndWait( std::chrono::seconds const& timeout ) override;
-      
-      virtual std::unique_ptr< API::IProcess > clone() const override;
      
    private:   
       boost::filesystem::path const m_processDirectory;

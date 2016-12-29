@@ -12,7 +12,7 @@ namespace API
 {
    struct IProcess
    { 
-      typedef std::set< std::unique_ptr< IProcess > > SetType;
+      typedef std::set< std::shared_ptr< IProcess > > SetType; ///< shared_ptr by intention here
  
       virtual ~IProcess() = default;
       
@@ -29,8 +29,6 @@ namespace API
       virtual bool terminateAndWait( std::chrono::seconds const& timeout ) = 0;
       
       virtual bool killAndWait( std::chrono::seconds const& timeout ) = 0;
-      
-      virtual std::unique_ptr< API::IProcess > clone() const = 0;
    };
    
    std::ostream& operator<<( std::ostream& os, IProcess const& process );

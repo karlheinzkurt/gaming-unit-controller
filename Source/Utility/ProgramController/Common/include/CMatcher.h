@@ -20,7 +20,7 @@ namespace ProgramController
          
       virtual CMatchingRule::SetType const& getRules() const override;
                
-      virtual API::IMatch::SetType matches( IProcess const& process ) const override;
+      virtual API::IMatch::SetType matches( std::shared_ptr<IProcess> const& process ) const override;
       
       virtual API::IMatch::SetType matches( IProcess::SetType const& process ) const override;
       

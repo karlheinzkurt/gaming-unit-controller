@@ -41,7 +41,7 @@ namespace API
       
       virtual CMatchingRule::SetType const& getRules() const = 0;
            
-      virtual IMatch::SetType matches( IProcess const& process ) const = 0;
+      virtual IMatch::SetType matches( std::shared_ptr<IProcess> const& process ) const = 0;
       
       virtual IMatch::SetType matches( IProcess::SetType const& process ) const = 0;
       

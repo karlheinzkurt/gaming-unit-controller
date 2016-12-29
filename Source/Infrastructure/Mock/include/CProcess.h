@@ -17,6 +17,5 @@ namespace Mock
       MOCK_CONST_METHOD0(toString, std::string());
       MOCK_METHOD1(terminateAndWait, bool(std::chrono::seconds const& timeout));
       MOCK_METHOD1(killAndWait, bool(std::chrono::seconds const& timeout));
-      MOCK_CONST_METHOD0(clone, std::unique_ptr< IProcess >());
    };
 }}

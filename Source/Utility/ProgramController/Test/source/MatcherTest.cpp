@@ -10,13 +10,37 @@
 
 using namespace Utility::ProgramController;
 
-TEST(Matcher, NoRule)
+TEST(Matcher, NoRuleNoCommandLineNoMatch)
 {
-   ::testing::StrictMock<Infrastructure::Mock::CProcess> processMock;
-   EXPECT_CALL(processMock, getCommandLine()).WillRepeatedly(::testing::Return(""));;   
+   auto process(std::make_shared<::testing::NiceMock<Infrastructure::Mock::CProcess>>());
+   EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return(""));
    
    CMatcher matcher;
-   EXPECT_EQ(size_t(0), matcher.matches(processMock).size());
+   EXPECT_EQ(size_t(0), matcher.matches(process).size());
+}
+
+TEST(Matcher, MatchingRule)
+{
+   auto process(std::make_shared<::testing::NiceMock<Infrastructure::Mock::CProcess>>());
+   EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return("/usr/bin/java -Djava.awt.headless=true -jar /usr/share/jenkins/jenkins.war --webroot=/var/cache/jenkins/war --httpPort=9090"));
+   
+   CMatcher matcher;
+   matcher.add(CMatchingRule("thatRule", {".*java.*jenkins.*"}, {}));
+   auto matches(matcher.matches(process));
+   EXPECT_EQ(size_t(1), matches.size());
+   EXPECT_EQ("thatRule", (*matches.begin())->getName());
+   EXPECT_EQ(process->getCommandLine(), (*(*matches.begin())->getProcesses().begin())->getCommandLine());
+}
+
+TEST(Matcher, NotMatchingRule)
+{
+   auto process(std::make_shared<::testing::NiceMock<Infrastructure::Mock::CProcess>>());
+   EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return("/usr/bin/java -Djava.awt.headless=true -jar /usr/share/jenkins/jenkins.war --webroot=/var/cache/jenkins/war --httpPort=9090"));
+   
+   CMatcher matcher;
+   matcher.add(CMatchingRule("thatRule", {".*java.*"}, {".*jenkins.*"}));
+   auto matches(matcher.matches(process));
+   EXPECT_EQ(size_t(0), matches.size());
 }
 
 TEST(Matcher, SerializeRoundTrip)
