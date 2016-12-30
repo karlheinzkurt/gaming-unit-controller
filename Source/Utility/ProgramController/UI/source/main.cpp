@@ -1,9 +1,9 @@
 
 #include "Utility/ProgramController/Common/include/CProgramController.h"
 #include "Utility/ProgramController/Common/include/CRunningStrategy.h"
-#include "Infrastructure/Linux/include/CSystem.h"
 
-#include <log4cxx/xml/domconfigurator.h>
+#include "Infrastructure/Common/include/System.h"
+#include "Infrastructure/Common/include/Logger.h"
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
@@ -63,10 +63,9 @@ int main( int argc, char** argv )
          ? std::unique_ptr<UPC::API::IRunningStrategy>(new UPC::CDaemonRunningStrategy(checkInterval))
          : std::unique_ptr<UPC::API::IRunningStrategy>(new UPC::CStraightRunningStrategy));
       
-      setenv("logfile.path", logFilePath.string().c_str(), 1);
-      log4cxx::xml::DOMConfigurator::configure( loggerConfigurationFilePath.string() );
+      Infrastructure::Common::Logger::configureLog4cxx(loggerConfigurationFilePath, logFilePath);
 
-      Infrastructure::Linux::CSystem system;
+      auto& system(Infrastructure::Common::System::get());
       auto controller(std::make_unique<UPC::CProgramController>(
           system
          ,*runningStrategy

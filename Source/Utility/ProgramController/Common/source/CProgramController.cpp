@@ -82,7 +82,7 @@ namespace ProgramController
       {
          /** \todo Kill exceeding processes
           */
-         LOG4CXX_INFO( m_logger, exceed ); 
+         LOG4CXX_INFO( m_logger, exceed );
       }
    }
    
