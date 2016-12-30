@@ -80,7 +80,8 @@ namespace ProgramController
       LOG4CXX_INFO( m_logger, "Exceeding matches found: " << exceeds.size() );
       for ( auto& exceed : exceeds )
       {
-         /** kill exceeding processes */
+         /** \todo Kill exceeding processes
+          */
          LOG4CXX_INFO( m_logger, exceed ); 
       }
    }
