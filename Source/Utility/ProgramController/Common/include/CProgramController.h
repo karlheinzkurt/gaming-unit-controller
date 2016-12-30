@@ -11,9 +11,21 @@ namespace Utility
 {
 namespace ProgramController
 {
-   struct ProgramController
+   struct CProgramController
    {
-      ProgramController( 
+      /** All those paths should be relative to the directory the 
+          executable is located.
+        */
+      
+      static boost::filesystem::path getDefaultCounterFilePath();
+      
+      static boost::filesystem::path getDefaultLogFilePath();
+      
+      static boost::filesystem::path getDefaultConfigurationFilePath();
+      
+      static boost::filesystem::path getDefaultLoggerConfigurationFilePath();
+      
+      CProgramController( 
           Infrastructure::API::ISystem& system
          ,boost::filesystem::path const& configurationFilePath
          ,boost::filesystem::path const& counterFilePath );

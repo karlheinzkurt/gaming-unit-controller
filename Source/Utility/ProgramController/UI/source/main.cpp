@@ -1,6 +1,5 @@
 
-#include "../include/CProgramController.h"
-
+#include "Utility/ProgramController/Common/include/CProgramController.h"
 #include "Infrastructure/Linux/include/CSystem.h"
 
 #include <log4cxx/xml/domconfigurator.h>
@@ -9,39 +8,26 @@
 #include <boost/filesystem.hpp>
 
 #include <iostream>
-#include <csignal>
-
-void signalHandler( int sig )
-{
-   switch(sig)
-   {
-      case SIGHUP:  {} break; ///< \todo Re-read config and create a new instance of CProgramController
-      case SIGTERM: {  exit(0); } break;
-   }	
-}
 
 int main( int argc, char** argv )
-{
-   signal( SIGHUP, signalHandler );  /* hangup signal */
-   signal( SIGTERM, signalHandler ); /* software termination signal from kill */
-   
+{  
    namespace po = boost::program_options;
    namespace fs = boost::filesystem;
    
-   fs::path const executablePath(fs::path( argv[0] ).parent_path());
+   fs::path const executablePath(fs::path(argv[0]).parent_path());
    
    po::options_description desc("General options");
    desc.add_options()
        ("help",                  "This help message")
        ("check-interval,i"      ,po::value< uint64_t >()->default_value( std::chrono::seconds( 60 ).count() )
                                 ,"Interval to check for matching processes in seconds" )
-       ("counter-file,c"        ,po::value< fs::path >()->default_value( executablePath / "Utility.ProgramController.Counter.xml" )
-                                ,"Path to config file") 
-       ("log-file,l"            ,po::value< fs::path >()->default_value( executablePath / "Utility.ProgramController.log" )
-                                ,"Path to logger config file")
-       ("config-file"           ,po::value< fs::path >()->default_value( executablePath / "etc" / "Utility.ProgramController.Config.xml" )
+       ("counter-file,c"        ,po::value< fs::path >()->default_value(executablePath / Utility::ProgramController::CProgramController::getDefaultCounterFilePath())
+                                ,"Path to file containing counter information") 
+       ("log-file,l"            ,po::value< fs::path >()->default_value(executablePath / Utility::ProgramController::CProgramController::getDefaultLogFilePath())
+                                ,"Path to log-file")
+       ("config-file"           ,po::value< fs::path >()->default_value(executablePath / Utility::ProgramController::CProgramController::getDefaultConfigurationFilePath())
                                 ,"Path to configuration file")
-       ("logger-config-file"    ,po::value< fs::path >()->default_value( executablePath / "etc" / "Utility.ProgramController.LoggerConfig.xml" )
+       ("logger-config-file"    ,po::value< fs::path >()->default_value(executablePath / Utility::ProgramController::CProgramController::getDefaultLoggerConfigurationFilePath())
                                 ,"Path to logger configuration file");
 
    try
@@ -53,7 +39,7 @@ int main( int argc, char** argv )
       if (vm.count("help"))
       {
          std::cout << desc << "\n";
-         return 1;
+         return 0;
       }
 
       fs::path const counterFilePath( vm[ "counter-file" ].as< fs::path >() );
@@ -65,7 +51,17 @@ int main( int argc, char** argv )
       log4cxx::xml::DOMConfigurator::configure( loggerConfigurationFilePath.string() );
 
       Infrastructure::Linux::CSystem system;
-      Utility::ProgramController::ProgramController controller(system, configurationFilePath, counterFilePath);
+      auto controller(std::make_unique<Utility::ProgramController::CProgramController>(system, configurationFilePath, counterFilePath));
+      
+      /** \todo Add strategies to be runnable 
+                - as daemon
+                - as cron triggerable normal app
+          \todo Use signal handler stuff to enable daemon to re-read the config or to shutdown properly
+          \todo Maybe move this signal handler stuff somewhere
+       */
+      std::vector<std::unique_ptr<Infrastructure::API::ISignalHandler>> handlers;
+      handlers.emplace_back(system.installSignalHandler(Infrastructure::API::Signal::Hup,  [](auto signal){ /* \todo handle */ }));
+      handlers.emplace_back(system.installSignalHandler(Infrastructure::API::Signal::Term, [](auto signal){ /* \todo handle */ }));
    }
    catch ( std::exception const& e )
    {

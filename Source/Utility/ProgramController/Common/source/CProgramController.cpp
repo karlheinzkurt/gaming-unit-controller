@@ -12,14 +12,26 @@
 namespace Utility
 {
 namespace ProgramController
-{   
-   ProgramController::ProgramController( 
+{ 
+   boost::filesystem::path CProgramController::getDefaultCounterFilePath()
+   {  return boost::filesystem::path("Utility.ProgramController.Counter.xml"); }
+   
+   boost::filesystem::path CProgramController::getDefaultLogFilePath()
+   {  return boost::filesystem::path("Utility.ProgramController.log"); }
+  
+   boost::filesystem::path CProgramController::getDefaultConfigurationFilePath()
+   {  return boost::filesystem::path("etc") / "Utility.ProgramController.Config.xml"; }
+   
+   boost::filesystem::path CProgramController::getDefaultLoggerConfigurationFilePath()
+   {  return boost::filesystem::path("etc") / "Utility.ProgramController.LoggerConfig.xml"; }
+  
+   CProgramController::CProgramController( 
        Infrastructure::API::ISystem& system
       ,boost::filesystem::path const& configurationFilePath
       ,boost::filesystem::path const& counterFilePath ) : 
        m_system(system)
       ,m_configurationFilePath(configurationFilePath)
-      ,m_logger( log4cxx::Logger::getLogger( "Utility.ProgramController" ) )
+      ,m_logger( log4cxx::Logger::getLogger( "Utility.ProgramController.CProgramController" ) )
    {
       if ( !boost::filesystem::exists( m_configurationFilePath ) )
       {
@@ -71,14 +83,14 @@ namespace ProgramController
       }
    }
    
-   void ProgramController::save(boost::filesystem::path const& path) const
+   void CProgramController::save(boost::filesystem::path const& path) const
    {
       boost::property_tree::ptree tree;
       tree.add_child("matcher", m_matcher->serialize());
       boost::property_tree::write_xml( path.string(), tree, std::locale(), boost::property_tree::xml_writer_make_settings<std::string>( ' ', 2 ) );
    }
    
-   void ProgramController::load(boost::filesystem::path const& path)
+   void CProgramController::load(boost::filesystem::path const& path)
    {
       boost::property_tree::ptree tree;
       boost::property_tree::read_xml( path.string(), tree, boost::property_tree::xml_parser::trim_whitespace );

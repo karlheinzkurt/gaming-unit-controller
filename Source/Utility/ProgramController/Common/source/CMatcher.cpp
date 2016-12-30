@@ -47,7 +47,7 @@ namespace ProgramController
    };
    
    CMatcher::CMatcher() :
-      m_logger( log4cxx::Logger::getLogger( "Controller.CMatcher" ) )
+      m_logger( log4cxx::Logger::getLogger( "Utility.ProgramController.CMatcher" ) )
    {}
    
    API::IMatcher& CMatcher::add( CMatchingRule rule )

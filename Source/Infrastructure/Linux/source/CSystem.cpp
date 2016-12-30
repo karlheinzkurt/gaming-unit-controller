@@ -1,6 +1,7 @@
 
 #include "../include/CProcess.h"
 #include "../include/CSystem.h"
+#include "../include/CSignalHandler.h"
 
 #include <boost/filesystem.hpp>
 
@@ -57,6 +58,11 @@ namespace Linux
          {  signallableProcesses.emplace( std::make_unique< CProcess >( process->getProcessId() ) ); }
       }
       return std::move( signallableProcesses );
+   }
+   
+   std::unique_ptr<API::ISignalHandler> CSystem::installSignalHandler(API::Signal signal, std::function<void(API::Signal)> function)
+   {
+      return std::make_unique<CSignalHandler>(signal, function);
    }
    
 }}
