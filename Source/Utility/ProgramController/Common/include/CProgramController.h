@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Infrastructure/API/include/ISystem.h"
+#include "Utility/ProgramController/Common/include/IRunningStrategy.h"
 #include "Utility/ProgramController/Common/include/IMatcher.h"
 
 #include <boost/filesystem/path.hpp>
@@ -27,6 +28,7 @@ namespace ProgramController
       
       CProgramController( 
           Infrastructure::API::ISystem& system
+         ,API::IRunningStrategy& runningStrategy
          ,boost::filesystem::path const& configurationFilePath
          ,boost::filesystem::path const& counterFilePath );
       
@@ -36,6 +38,7 @@ namespace ProgramController
       
    private:
       Infrastructure::API::ISystem& m_system;
+      API::IRunningStrategy& m_runningStrategy;
       boost::filesystem::path m_configurationFilePath;
       log4cxx::LoggerPtr m_logger;
       std::unique_ptr<Utility::ProgramController::API::IMatcher> m_matcher;

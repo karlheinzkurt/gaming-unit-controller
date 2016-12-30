@@ -27,9 +27,11 @@ namespace ProgramController
   
    CProgramController::CProgramController( 
        Infrastructure::API::ISystem& system
+      ,API::IRunningStrategy& runningStrategy
       ,boost::filesystem::path const& configurationFilePath
       ,boost::filesystem::path const& counterFilePath ) : 
        m_system(system)
+      ,m_runningStrategy(runningStrategy)
       ,m_configurationFilePath(configurationFilePath)
       ,m_logger( log4cxx::Logger::getLogger( "Utility.ProgramController.CProgramController" ) )
    {
