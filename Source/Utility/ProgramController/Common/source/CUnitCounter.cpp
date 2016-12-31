@@ -67,14 +67,14 @@ namespace Internal ///< Internal
       if (!isConsecutiveRun(previousRun, now))
       {
          /** When this run is not directly
-          *  following of a previous run, we
+          *  following a previous run, we
           *  just leave but we updated run 
           *  timestamp before.
           * */
          return;
       }
       
-      /** A normal run adds the differnce to previous 
+      /** A normal run adds the difference to previous 
        *  run onto the active counter.
        */
       m_active += std::chrono::duration_cast<std::chrono::seconds>( now - previousRun );

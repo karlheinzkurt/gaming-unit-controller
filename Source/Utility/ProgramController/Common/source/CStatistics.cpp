@@ -71,6 +71,17 @@ namespace ProgramController
       auto& counter( m_impl->m_counter[match] );
       if (!counter)
       {
+         /** \todo When the counter is new and created the first time,
+          *  we pass here some standard values Unit:Day/Limit:Hour
+          *  but this is invalid, this has to come from configuration
+          *  file.
+          *  \todo In general, think about whether it is necessary or 
+          *  reasonable to store the limit inside of the counter or 
+          *  if it should be passed to the method if the counter exceeds 
+          *  the limit as an argument. Because the limit could be changed
+          *  and what happens then with counters already created. We would 
+          *  have to update them. Actually it is quite clear: Remove limit from CUnitCounter
+          */
          counter = CUnitCounterFactory().create(Unit::Day, std::chrono::hours(1));
       }
    
