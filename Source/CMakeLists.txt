@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(guc)
+project(gsc)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 
@@ -66,5 +66,5 @@ SET(GMOCK_ALL_LIBRARIES
    "${binary_dir}/googlemock/libgmock_main.a"
    pthread)
 
-add_subdirectory(guclib)
-add_subdirectory(guc)
+add_subdirectory(gsclib)
+add_subdirectory(gsc)
