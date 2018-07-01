@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(ProgramController)
+project(guc)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 
@@ -9,24 +9,25 @@ ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   SET(CMAKE_BUILD_TYPE "Debug")
-  SET(COVERAGE_COMPILE_FLAGS -fPIC -O0 -fprofile-arcs -ftest-coverage)
-  SET(COVERAGE_LINK_FLAGS -fprofile-arcs -ftest-coverage)
+  add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
+  link_libraries(gcov)
   MESSAGE(STATUS "Configure build for coverage analysis")
 ENDIF()
 
 GET_FILENAME_COMPONENT( SOURCE_ROOT . ABSOLUTE )
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SOURCE_ROOT}/../bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SOURCE_ROOT}/../bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SOURCE_ROOT}/../bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SOURCE_ROOT}/../bin/${BIN_PATH_POSTFIX})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SOURCE_ROOT}/../bin/${BIN_PATH_POSTFIX})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SOURCE_ROOT}/../bin/${BIN_PATH_POSTFIX})
 
 add_compile_options(--std=c++14)
 add_compile_options(-Wall)
 add_compile_options(-Werror)
-add_compile_options(${COVERAGE_COMPILE_FLAGS})
 
-link_libraries(${COVERAGE_LINK_FLAGS})
 include_directories(${SOURCE_ROOT})
 
+set(Boost_USE_STATIC_LIBS ON) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME OFF) 
 FIND_PACKAGE(Boost 1.45.0 REQUIRED COMPONENTS system filesystem program_options date_time)
 SET(Log4cxx_LIBRARIES log4cxx)
 
@@ -65,5 +66,5 @@ SET(GMOCK_ALL_LIBRARIES
    "${binary_dir}/googlemock/libgmock_main.a"
    pthread)
 
-add_subdirectory(Infrastructure)
-add_subdirectory(Utility)
+add_subdirectory(guclib)
+add_subdirectory(guc)
