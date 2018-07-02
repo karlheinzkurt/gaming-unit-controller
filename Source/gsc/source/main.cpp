@@ -14,32 +14,29 @@ int main( int argc, char** argv )
 {  
    namespace bpo = boost::program_options;
    namespace bfs = boost::filesystem;
-   namespace UPC = GSC::Common;
+   
+   using GSC::Common::CSessionController;
    
    auto const executablePath(bfs::path(argv[0]).parent_path());
    
    bpo::options_description desc("General options");
    desc.add_options()
-      ("help,h"
-          // no argument
-         ,"This help message")
-      ("daemon,d"
-          // no argument
-         ,"Run continuously")
+      ("help,h",   "This help message")
+      ("daemon,d", "Run continuously")
       ("check-interval,i"      
          ,bpo::value< uint64_t >()->default_value( std::chrono::seconds( 60 ).count() )
          ,"Interval to check for matching processes in seconds" )
       ("counter-file,c"
-         ,bpo::value<bfs::path>()->default_value(executablePath / UPC::CSessionController::getDefaultCounterFilePath())
+         ,bpo::value<bfs::path>()->default_value(executablePath / CSessionController::getDefaultCounterFilePath())
          ,"Path to file containing counter information") 
       ("log-file,l"
-         ,bpo::value<bfs::path>()->default_value(executablePath / UPC::CSessionController::getDefaultLogFilePath())
+         ,bpo::value<bfs::path>()->default_value(executablePath / CSessionController::getDefaultLogFilePath())
          ,"Path to log-file")
       ("config-file"
-         ,bpo::value<bfs::path>()->default_value(executablePath / UPC::CSessionController::getDefaultConfigurationFilePath())
+         ,bpo::value<bfs::path>()->default_value(executablePath / CSessionController::getDefaultConfigurationFilePath())
          ,"Path to configuration file")
       ("logger-config-file"
-         ,bpo::value<bfs::path>()->default_value(executablePath / UPC::CSessionController::getDefaultLoggerConfigurationFilePath())
+         ,bpo::value<bfs::path>()->default_value(executablePath / CSessionController::getDefaultLoggerConfigurationFilePath())
          ,"Path to logger configuration file");
 
    try
@@ -59,25 +56,25 @@ int main( int argc, char** argv )
       auto const configurationFilePath(               vm["config-file"        ].as<bfs::path>());
       auto const loggerConfigurationFilePath(         vm["logger-config-file" ].as<bfs::path>());
       auto const checkInterval(std::chrono::seconds(  vm["check-interval"     ].as<size_t>()));
-      auto const runningStrategy(                     vm.count("daemon") > 0
-         ? std::unique_ptr<UPC::API::IRunningStrategy>(new UPC::CDaemonRunningStrategy(checkInterval))
-         : std::unique_ptr<UPC::API::IRunningStrategy>(new UPC::CStraightRunningStrategy));
+      
+      auto& system(Infrastructure::Common::System::get());
+      std::unique_ptr<GSC::Common::API::IRunningStrategy> runningStrategy;
+      std::vector<std::unique_ptr<Infrastructure::API::ISignalHandler>> handlers;
+      if (vm.count("daemon"))
+      {
+         runningStrategy = std::make_unique<GSC::Common::CDaemonRunningStrategy>(checkInterval);
+         handlers.emplace_back(system.installSignalHandler(Infrastructure::API::Signal::Term, [&runningStrategy](auto signal)
+         {  runningStrategy->cancel(); }));
+      }
+      else
+      {  runningStrategy = std::make_unique<GSC::Common::CStraightRunningStrategy>(); }
       
       Infrastructure::Common::Logger::configureLog4cxx(loggerConfigurationFilePath, logFilePath);
-
-      auto& system(Infrastructure::Common::System::get());
-      auto controller(std::make_unique<UPC::CSessionController>(
+      auto controller(std::make_unique<GSC::Common::CSessionController>(
           system
          ,*runningStrategy
          ,configurationFilePath
          ,counterFilePath));
-      
-      /** \todo Use signal handler stuff to enable daemon to re-read the config or to shutdown properly
-          \todo Maybe move this signal handler stuff somewhere
-       */
-      std::vector<std::unique_ptr<Infrastructure::API::ISignalHandler>> handlers;
-      handlers.emplace_back(system.installSignalHandler(Infrastructure::API::Signal::Hup,  [](auto signal){ /* \todo handle */ }));
-      handlers.emplace_back(system.installSignalHandler(Infrastructure::API::Signal::Term, [](auto signal){ /* \todo handle */ }));
    }
    catch ( std::exception const& e )
    {

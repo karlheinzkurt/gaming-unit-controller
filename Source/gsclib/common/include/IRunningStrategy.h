@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 namespace GSC
 {
 namespace Common
@@ -10,6 +12,7 @@ namespace API
    {
       virtual ~IRunningStrategy() = default;
       
-      virtual void run() = 0;
+      virtual void run(std::function<void()>) = 0;
+      virtual void cancel() = 0;
    };   
 }}}

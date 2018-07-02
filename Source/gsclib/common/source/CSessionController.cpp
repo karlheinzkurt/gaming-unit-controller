@@ -38,8 +38,10 @@ namespace Common
       if ( !boost::filesystem::exists( m_configurationFilePath ) )
       {
          m_matcher = CMatcherFactory().create();
-         m_matcher->add(CMatchingRule("example", {".*match.*", ".*or_match.*"}, {".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
-         auto examplePath = boost::filesystem::change_extension(m_configurationFilePath, "example.xml");
+         m_matcher->add(CMatchingRule("example", 
+             {".*match.*", ".*or_match.*"}
+            ,{".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
+         auto const examplePath = boost::filesystem::change_extension(m_configurationFilePath, "example.xml");
          save(examplePath);
          
          std::ostringstream os;
@@ -55,35 +57,39 @@ namespace Common
             throw std::invalid_argument(os.str());
          }
       }
-      load(m_configurationFilePath);
       
-      auto const processes(system.getRunningProcesses());
-      LOG4CXX_INFO( m_logger, "Processes found: " << processes.size() );
-            
-      auto const signallableProcesses(system.getSignallableProcesses());
-      LOG4CXX_INFO( m_logger, "Signallable processes found: " << signallableProcesses.size() );
-           
-      auto const matches( m_matcher->matches( signallableProcesses ) );
-      LOG4CXX_INFO( m_logger, "Matching processes found: " << std::accumulate( 
-          matches.begin(), matches.end(), 0
-         ,[]( int v, auto const& match ){ return v + match->getProcesses().size(); } ) );
-      LOG4CXX_INFO( m_logger, "Matches found: " << matches.size() );
-      
-      Statistics statistics( m_logger, counterFilePath );
-      for ( auto& match : matches )
+      m_runningStrategy.run([this, counterFilePath]
       {
-         statistics.add( match->getName() );
-         LOG4CXX_INFO( m_logger, *match ); 
-      }
+         load(m_configurationFilePath);
       
-      std::set< std::string > const exceeds( statistics.getCurrentlyExceeding( /*matches, */std::chrono::hours( 1 ) ) );
-      LOG4CXX_INFO( m_logger, "Exceeding matches found: " << exceeds.size() );
-      for ( auto& exceed : exceeds )
-      {
-         /** \todo Kill exceeding processes
-          */
-         LOG4CXX_INFO( m_logger, exceed );
-      }
+         auto const processes(m_system.getRunningProcesses());
+         LOG4CXX_INFO( m_logger, "Processes found: " << processes.size() );
+               
+         auto const signallableProcesses(m_system.getSignallableProcesses());
+         LOG4CXX_INFO( m_logger, "Signallable processes found: " << signallableProcesses.size() );
+              
+         auto const matches( m_matcher->matches( signallableProcesses ) );
+         LOG4CXX_INFO( m_logger, "Matching processes found: " << std::accumulate( 
+             matches.begin(), matches.end(), 0
+            ,[]( int v, auto const& match ){ return v + match->getProcesses().size(); } ) );
+         LOG4CXX_INFO( m_logger, "Matches found: " << matches.size() );
+         
+         Statistics statistics( m_logger, counterFilePath );
+         for ( auto& match : matches )
+         {
+            statistics.add( match->getName() );
+            LOG4CXX_INFO( m_logger, *match ); 
+         }
+         
+         std::set< std::string > const exceeds( statistics.getCurrentlyExceeding( /*matches, */std::chrono::hours( 1 ) ) );
+         LOG4CXX_INFO( m_logger, "Exceeding matches found: " << exceeds.size() );
+         for ( auto& exceed : exceeds )
+         {
+            /** \todo Kill exceeding processes
+             */
+            LOG4CXX_INFO( m_logger, exceed );
+         }
+      });
    }
    
    void CSessionController::save(boost::filesystem::path const& path) const

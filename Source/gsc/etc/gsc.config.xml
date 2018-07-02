@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<matcher>
+  <rules>
+    <rule>
+      <name>minecraft</name>
+      <whitelist>
+        <entry>.*java.*</entry>
+        <entry>[-]jar.*?Minecraft[.]jar</entry>
+      </whitelist>
+      <blacklist>
+        <entry></entry>
+      </blacklist>
+    </rule>
+    <rule>
+      <name>firefox</name>
+      <whitelist>
+        <entry>.*firefox</entry>
+      </whitelist>
+      <blacklist>
+        <entry>.*[-]childID\s\d+.*</entry>
+      </blacklist>
+    </rule>
+  </rules>
+</matcher>
