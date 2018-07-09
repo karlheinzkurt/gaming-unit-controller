@@ -17,6 +17,7 @@ namespace API
          case Signal::Kill: return os << "KILL";
       }
       assert(false); ///< Extend switch block above
+      return os;
    }
    
    std::ostream& operator<<(std::ostream& os, ISignalHandler const& signalHandler)
