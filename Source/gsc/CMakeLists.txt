@@ -12,3 +12,7 @@ add_custom_target(${PROJECT_NAME}.Copy ALL
    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/etc $<TARGET_FILE_DIR:${PROJECT_NAME}>/etc
    DEPENDS ${PROJECT_NAME}
    COMMENT "Copying configuration files")
+
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+install(FILES etc/gsc.logger.xml etc/gsc.config.xml DESTINATION share/gsc)
+
