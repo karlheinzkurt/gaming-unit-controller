@@ -1,30 +1,31 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:       Utility.ProgramController
+# Provides:       gsc
 # Required-Start: $local_fs $remote_fs $syslog $network
 # Required-Stop:  $local_fs $remote_fs $syslog $network
 # Default-Start:  2 3 4 5
 # Default-Stop:   0 1 6
-# Description:    Handles actions for Utility.ProgramController
+# Description:    Handles actions for gaming session controller (gsc)
 ### END INIT INFO
 
-DAEMON=Utility.ProgramController
-DAEMON_OPTIONS=" -l -s -v D"
-DAEMON_PATH=/usr/share/Utility
-MSGDEV=/dev/kmsg
-PIDFILE=/var/run/$DAEMON.pid
+DAEMON=gsc
+DAEMON_PATH=/usr/share/gsc
+PIDFILE=/var/run/gsc/$DAEMON.pid
+COUNTFILE=/var/run/gsc/$DAEMON.counts.xml
 LOGFILE=/var/log/$DAEMON.log
+DAEMON_OPTIONS=" -d --config-file=$DAEMON_PATH/gsc.config.xml --counter-file=$COUNTFILE --logger-config-file=$DAEMON_PATH/gsc.logger.xml --log-file=$LOGFILE"
+MSGDEV=/dev/kmsg
 
 case "$1" in
   start)
 	# start the daemon 
-	/sbin/start-stop-daemon --start --quiet --make-pidfile --pidfile $PIDFILE --background --startas /bin/bash -- -c "exec $DAEMON_PATH/$DAEMON $DAEMON_OPTIONS > $LOGFILE 2>&1"
+	/sbin/start-stop-daemon --start --quiet --make-pidfile --pidfile $PIDFILE --background --startas /bin/bash -- -c "exec $DAEMON_PATH/$DAEMON $DAEMON_OPTIONS"
 	/bin/echo "$DAEMON started" > $MSGDEV
 	;;
   stop)
 	# stop the daemon
-	/sbin/start-stop-daemon --stop --quiet --make-pidfile --pidfile $PIDFILE --startas /bin/bash -- -c "exec $DAEMON_PATH/$DAEMON $DAEMON_OPTIONS > $LOGFILE 2>&1"
+	/sbin/start-stop-daemon --stop --quiet --make-pidfile --pidfile $PIDFILE --startas /bin/bash -- -c "exec $DAEMON_PATH/$DAEMON $DAEMON_OPTIONS"
 	/bin/echo "$DAEMON stopped" > $MSGDEV
 	;;
   restart|force-reload)
