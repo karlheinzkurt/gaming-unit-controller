@@ -14,5 +14,7 @@ add_custom_target(${PROJECT_NAME}.Copy ALL
    COMMENT "Copying configuration files")
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-install(FILES etc/gsc.logger.xml etc/gsc.config.xml DESTINATION share/gsc)
+install(FILES etc/gsc.logger.xml etc/gsc.config.xml DESTINATION /usr/share/gsc/)
+install(FILES etc/gsc PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE DESTINATION /etc/init.d/)
+install(DIRECTORY DESTINATION /var/run/gsc/) 
 

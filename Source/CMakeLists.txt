@@ -87,6 +87,10 @@ SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 SET(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 SET(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+
+# systemctl --system daemon-reload
+# systemctl enable gsc
+# systemctl start gsc
  
 INCLUDE(CPack)
 

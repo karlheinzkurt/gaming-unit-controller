@@ -11,14 +11,6 @@
         <entry></entry>
       </blacklist>
     </rule>
-    <rule>
-      <name>firefox</name>
-      <whitelist>
-        <entry>.*firefox</entry>
-      </whitelist>
-      <blacklist>
-        <entry>.*[-]childID\s\d+.*</entry>
-      </blacklist>
-    </rule>
   </rules>
 </matcher>
+
