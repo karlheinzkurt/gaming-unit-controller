@@ -29,42 +29,15 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)  
 set(Boost_USE_STATIC_RUNTIME OFF) 
 FIND_PACKAGE(Boost 1.45.0 REQUIRED COMPONENTS system filesystem program_options date_time)
-SET(Log4cxx_LIBRARIES log4cxx)
 
-# For the following gtest/gmock stuff see: http://www.kaizou.org/2014/11/gtest-cmake/
-# This downloads, builds and provides gtest/gmock
-find_package(Threads REQUIRED)   # We need thread support
-include(ExternalProject)         # Enable ExternalProject CMake module
+find_library(Log4cxx REQUIRED log4cxx)
+SET(Log4cxx_LIBRARIES log4cxx) # There is no findpackage
 
-ExternalProject_Add(
-    gmock
-    URL https://github.com/google/googletest/archive/release-1.8.0.zip
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gmock
-    # Disable install step
-    INSTALL_COMMAND ""
-)
-ExternalProject_Get_Property(gmock source_dir binary_dir)
+find_library(cpprestsdk REQUIRED cpprest)
+SET(cpprest_LIBRARIES ssl crypto cpprest)
 
-add_library(libgtest IMPORTED STATIC GLOBAL)
-set_target_properties(libgtest PROPERTIES
-    "IMPORTED_LOCATION" "${binary_dir}/gtest/libgtest.a"
-    "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
-
-add_library(libgmock IMPORTED STATIC GLOBAL)
-set_target_properties(libgmock PROPERTIES
-    "IMPORTED_LOCATION" "${binary_dir}/libgmock.a"
-    "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
-
-SET(GMOCK_INCLUDE_DIRECTORIES
-   "${source_dir}/googlemock/include"
-   "${source_dir}/googletest/include")
-
-SET(GMOCK_ALL_LIBRARIES 
-   "${binary_dir}/googlemock/gtest/libgtest.a" 
-   "${binary_dir}/googlemock/gtest/libgtest_main.a" 
-   "${binary_dir}/googlemock/libgmock.a" 
-   "${binary_dir}/googlemock/libgmock_main.a"
-   pthread)
+FIND_PACKAGE(GTest 1.8.0 REQUIRED)
+SET(GMOCK_ALL_LIBRARIES gmock) # Not contained in GTest
 
 add_subdirectory(gsclib)
 add_subdirectory(gsc)

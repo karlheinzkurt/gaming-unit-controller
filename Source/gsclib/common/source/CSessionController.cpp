@@ -4,6 +4,7 @@
 #include "gsclib/common/include/CMatchingRule.h"
 #include "gsclib/common/include/CStatistics.h"
 #include "gsclib/common/include/CMatcherFactory.h"
+#include "gsclib/common/include/CInfluxAdapter.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -58,8 +59,10 @@ namespace Common
          }
       }
       
-      m_runningStrategy.run([this, counterFilePath]
+      CInfluxAdapter influxAdapter;
+      m_runningStrategy.run([this, counterFilePath, &influxAdapter]
       {
+         LOG4CXX_INFO( m_logger, "=====> Next Cycle <=====");
          load(m_configurationFilePath);
       
          auto const processes(m_system.getRunningProcesses());
@@ -72,7 +75,9 @@ namespace Common
          LOG4CXX_INFO( m_logger, "Matching processes found: " << std::accumulate( 
              matches.begin(), matches.end(), 0
             ,[]( int v, auto const& match ){ return v + match->getProcesses().size(); } ) );
-         LOG4CXX_INFO( m_logger, "Matches found: " << matches.size() );
+         LOG4CXX_INFO( m_logger, "Matching applications found: " << matches.size() );
+         
+         influxAdapter.insertActive(matches);
          
          Statistics statistics( m_logger, counterFilePath );
          for ( auto& match : matches )
@@ -82,13 +87,16 @@ namespace Common
          }
          
          std::set< std::string > const exceeds( statistics.getCurrentlyExceeding( /*matches, */std::chrono::hours( 1 ) ) );
-         LOG4CXX_INFO( m_logger, "Exceeding matches found: " << exceeds.size() );
+         LOG4CXX_INFO( m_logger, "Exceeding applications found: " << exceeds.size() );
          for ( auto& exceed : exceeds )
          {
             /** \todo Kill exceeding processes
+             *  \todo log real processes
              */
             LOG4CXX_INFO( m_logger, exceed );
          }
+         
+         influxAdapter.insertExceeding(exceeds);
       });
    }
    
