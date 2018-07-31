@@ -61,7 +61,7 @@ void CInfluxAdapter::insertActive(API::IMatch::SetType const& active)
    if (active.empty()) return;
    
    std::ostringstream os;
-   os << "active ";
+   os << "active system=1.0 ";
    for (auto const& a : active) { os << a->getName() << "=1.0 "; }
    m_impl->write(os.str()).wait();
 }
