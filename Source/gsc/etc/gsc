@@ -12,8 +12,8 @@
 DAEMON=gsc
 DAEMON_PATH=/usr/bin
 CONFIG_PATH=/usr/share/gsc
-PIDFILE=/var/run/gsc/$DAEMON.pid
-COUNTFILE=/var/run/gsc/$DAEMON.counts.xml
+PIDFILE=/var/run/$DAEMON.pid
+COUNTFILE=/var/run/$DAEMON.counts.xml
 LOGFILE=/var/log/$DAEMON.log
 DAEMON_OPTIONS=" -d --config-file=$CONFIG_PATH/gsc.config.xml --counter-file=$COUNTFILE --logger-config-file=$CONFIG_PATH/gsc.logger.xml --log-file=$LOGFILE"
 MSGDEV=/dev/kmsg

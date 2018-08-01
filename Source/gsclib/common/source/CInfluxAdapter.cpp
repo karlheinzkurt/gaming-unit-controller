@@ -3,6 +3,8 @@
 
 #include <cpprest/http_client.h>
 
+#include <log4cxx/logger.h>
+
 #include <stdexcept>
 
 namespace GSC { namespace Common {
@@ -14,12 +16,10 @@ struct CInfluxAdapter::Impl
       ,m_queryURI(web::uri_builder("/query").append_query("db", db).to_uri())
       ,m_writeURI(web::uri_builder("/write").append_query("db", db).to_uri())
       ,m_pingURI(web::uri_builder("/ping").to_uri())
+      ,m_logger(log4cxx::Logger::getLogger("GSC.Common.CInfluxAdapter"))
    {
-      createDatabase(db).then([](web::http::http_response response)
-      {
-         if (response.status_code() != web::http::status_codes::OK)
-         {  throw std::runtime_error("Could not create database"); }
-      }).wait();
+      createDatabase(db).wait();
+      LOG4CXX_INFO(m_logger, "Created database: " << db);
    }
    
    pplx::task<web::http::http_response> createDatabase(std::string name)
@@ -28,7 +28,7 @@ struct CInfluxAdapter::Impl
       std::ostringstream os;
       os << "CREATE DATABASE \"" << name << "\"";
       request.set_request_uri(web::uri_builder("/query").append_query("q", os.str()).to_uri());
-      return m_client.request(request);
+      return doRequest(std::move(request), web::http::status_codes::OK);
    }
    
    pplx::task<web::http::http_response> write(std::string data)
@@ -36,16 +36,35 @@ struct CInfluxAdapter::Impl
       web::http::http_request request(web::http::methods::POST);
       request.set_request_uri(m_writeURI);
       request.set_body(utility::string_t(data));
-      return m_client.request(request);
+      return doRequest(std::move(request), web::http::status_codes::NoContent);
    }
    
    pplx::task<web::http::http_response> ping()
-   {  return m_client.request(web::http::methods::GET, m_pingURI.to_string()); }
+   {  
+      web::http::http_request request(web::http::methods::GET);
+      request.set_request_uri(m_pingURI);
+      return doRequest(std::move(request), web::http::status_codes::NoContent);
+   }
+   
+   pplx::task<web::http::http_response> doRequest(web::http::http_request&& request, web::http::status_code expect)
+   {  
+      LOG4CXX_INFO(m_logger, "HTTP request: " << request.to_string());
+      return m_client.request(std::move(request)).then([this, expect](web::http::http_response response)
+      {
+         if (response.status_code() != expect)
+         {  
+            LOG4CXX_INFO(m_logger, "Request unsuccessful with code: " << response.status_code());
+            throw std::runtime_error("Request unsuccessful"); 
+         }
+         return response;
+      });
+   }
    
    web::http::client::http_client m_client;
    web::uri m_queryURI;
    web::uri m_writeURI;
    web::uri m_pingURI;
+   log4cxx::LoggerPtr m_logger;
 };
    
 CInfluxAdapter::CInfluxAdapter() : m_impl(std::make_unique<Impl>(web::uri_builder("http://localhost:8086").to_uri(), "gsc"))
@@ -57,12 +76,10 @@ CInfluxAdapter::CInfluxAdapter() : m_impl(std::make_unique<Impl>(web::uri_builde
 CInfluxAdapter::~CInfluxAdapter() = default;
 
 void CInfluxAdapter::insertActive(API::IMatch::SetType const& active)
-{
-   if (active.empty()) return;
-   
+{  
    std::ostringstream os;
-   os << "active system=1.0 ";
-   for (auto const& a : active) { os << a->getName() << "=1.0 "; }
+   os << "active system=1.0\n";
+   for (auto const& a : active) { os << "active " << a->getName() << "=1.0\n"; }
    m_impl->write(os.str()).wait();
 }
 
@@ -71,8 +88,7 @@ void CInfluxAdapter::insertExceeding(std::set<std::string> const& exceeding)
    if (exceeding.empty()) return;
    
    std::ostringstream os;
-   os << "exceeding ";
-   for (auto const& e : exceeding) { os << e << "=1.0 "; }
+   for (auto const& e : exceeding) { os << "exceeding " << e << "=1.0\n"; }
    m_impl->write(os.str()).wait();
 }
 
