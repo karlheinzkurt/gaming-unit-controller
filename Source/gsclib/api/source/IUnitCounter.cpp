@@ -7,7 +7,7 @@
 
 namespace GSC
 {
-namespace Common
+namespace API
 {
    std::ostream& operator<<(std::ostream& os, Unit unit)
    {
@@ -16,7 +16,7 @@ namespace Common
          case Unit::Day:  return os << "Day";  break;
          case Unit::Week: return os << "Week"; break;
       }
-      throw CUnsupportedUnitException("Unsupported unit");
+      throw API::CUnsupportedUnitException("Unsupported unit");
    }
    
    std::istream& operator>>(std::istream& is, Unit& unit)
@@ -34,7 +34,7 @@ namespace Common
          unit = Unit::Week;
          return is;
       }
-      throw CUnsupportedUnitException("Unsupported unit");
+      throw API::CUnsupportedUnitException("Unsupported unit");
    }
    
    bool operator==(IUnitCounter const& a, IUnitCounter const& b)

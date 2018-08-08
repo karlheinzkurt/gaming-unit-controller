@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IUnitCounter.h"
+#include "gsclib/api/include/IUnitCounter.h"
 
 #include <chrono>
 #include <memory>
@@ -18,10 +18,10 @@ namespace Common
     */
    struct CUnitCounterFactory
    {
-      explicit CUnitCounterFactory(std::chrono::seconds updateCycle = getDefaultUpdateCycle());
+      explicit CUnitCounterFactory(std::chrono::seconds updateCycle = API::getDefaultUpdateCycle());
       
-      std::unique_ptr<IUnitCounter> create(Unit unit, std::chrono::seconds limit);
-      std::unique_ptr<IUnitCounter> create(boost::property_tree::ptree const&);
+      std::unique_ptr<API::IUnitCounter> create(API::Unit unit, std::chrono::seconds limit);
+      std::unique_ptr<API::IUnitCounter> create(boost::property_tree::ptree const&);
       
    private:
       std::chrono::seconds m_updateCycle;

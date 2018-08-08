@@ -5,8 +5,6 @@
 
 namespace GSC
 {
-namespace Common
-{
 namespace API
 {
 
@@ -20,4 +18,4 @@ namespace API
       return a.getName() < b.getName(); 
    }
       
-}}}
+}}

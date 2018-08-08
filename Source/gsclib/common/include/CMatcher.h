@@ -1,8 +1,6 @@
 #pragma once
 
-#include "IMatcher.h"
-
-#include "gsclib/infrastructure/api/include/IProcess.h"
+#include "gsclib/api/include/IMatcher.h"
 
 #include <log4cxx/logger.h>
 
@@ -10,19 +8,17 @@ namespace GSC
 {
 namespace Common
 {
-   using Infrastructure::API::IProcess;
-  
    struct CMatcher : API::IMatcher
    {           
       CMatcher();
       
-      virtual IMatcher& add( CMatchingRule rule ) override;
+      virtual API::IMatcher& add(std::unique_ptr<API::IMatchingRule> rule) override;
          
-      virtual CMatchingRule::SetType const& getRules() const override;
+      virtual API::IMatchingRule::SetType const& getRules() const override;
                
-      virtual API::IMatch::SetType matches( std::shared_ptr<IProcess> const& process ) const override;
+      virtual API::IMatch::SetType matches(std::shared_ptr<Infrastructure::API::IProcess> const& process) const override;
       
-      virtual API::IMatch::SetType matches( IProcess::SetType const& process ) const override;
+      virtual API::IMatch::SetType matches(Infrastructure::API::IProcess::SetType const& process) const override;
       
       virtual boost::property_tree::ptree serialize() const override;
       
@@ -30,7 +26,7 @@ namespace Common
       
    private:
       log4cxx::LoggerPtr m_logger;
-      CMatchingRule::SetType m_rules;
+      API::IMatchingRule::SetType m_rules;
    };
 
 }}

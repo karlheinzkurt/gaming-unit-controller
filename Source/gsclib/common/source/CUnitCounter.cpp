@@ -87,7 +87,7 @@ namespace Internal ///< Internal
       return unitA > unitB;
    }
    
-   IUnitCounter::time_point_type AUnitCounterBase::getAndUpdate(time_point_type& toUpdate, time_point_type point)
+   API::IUnitCounter::time_point_type AUnitCounterBase::getAndUpdate(time_point_type& toUpdate, time_point_type point)
    {
       std::swap(toUpdate, point);
       return point;
@@ -110,12 +110,12 @@ namespace Internal ///< Internal
       return std::move(ptCounter);
    }
    
-   Unit CWeekCounter::getUnit() const
+   API::Unit CWeekCounter::getUnit() const
    {
-      return Unit::Week;
+      return API::Unit::Week;
    }
       
-   IUnitCounter::time_point_type CWeekCounter::getUnitBegin(time_point_type const& point)
+   API::IUnitCounter::time_point_type CWeekCounter::getUnitBegin(time_point_type const& point)
    {
       if (point == time_point_type())
       {  return point; }
@@ -134,12 +134,12 @@ namespace Internal ///< Internal
       return std::chrono::system_clock::from_time_t(mktime(&resultLocalTime));
    }
    
-   Unit CDayCounter::getUnit() const
+   API::Unit CDayCounter::getUnit() const
    {
-      return Unit::Day;
+      return API::Unit::Day;
    }
    
-   IUnitCounter::time_point_type CDayCounter::getUnitBegin(time_point_type const& point)
+   API::IUnitCounter::time_point_type CDayCounter::getUnitBegin(time_point_type const& point)
    {
       if (point == time_point_type())
       {  return point; }

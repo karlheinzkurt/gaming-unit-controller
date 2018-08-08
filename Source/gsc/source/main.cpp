@@ -58,7 +58,7 @@ int main( int argc, char** argv )
       auto const checkInterval(std::chrono::seconds(  vm["check-interval"     ].as<size_t>()));
       
       auto& system(Infrastructure::Common::System::get());
-      std::unique_ptr<GSC::Common::API::IRunningStrategy> runningStrategy;
+      std::unique_ptr<GSC::API::IRunningStrategy> runningStrategy;
       std::vector<std::unique_ptr<Infrastructure::API::ISignalHandler>> handlers;
       if (vm.count("daemon"))
       {

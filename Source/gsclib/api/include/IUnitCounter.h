@@ -8,7 +8,7 @@
 
 namespace GSC
 {
-namespace Common
+namespace API
 {   
    /** @brief Currently supported units for counters.
     *  @todo Add support for monthly units.

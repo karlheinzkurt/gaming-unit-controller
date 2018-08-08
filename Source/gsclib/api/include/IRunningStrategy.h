@@ -4,8 +4,6 @@
 
 namespace GSC
 {
-namespace Common
-{
 namespace API
 {
    struct IRunningStrategy
@@ -15,4 +13,4 @@ namespace API
       virtual void run(std::function<void()>) = 0;
       virtual void cancel() = 0;
    };   
-}}}
+}}

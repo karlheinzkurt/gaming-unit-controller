@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "gsclib/common/include/IMatcher.h"
+#include "gsclib/api/include/IMatcher.h"
 
 namespace GSC { namespace Common {
 

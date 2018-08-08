@@ -1,8 +1,9 @@
 #pragma once
 
 #include "gsclib/infrastructure/api/include/ISystem.h"
-#include "gsclib/common/include/IRunningStrategy.h"
-#include "gsclib/common/include/IMatcher.h"
+
+#include "gsclib/api/include/IRunningStrategy.h"
+#include "gsclib/api/include/IMatcher.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -41,6 +42,6 @@ namespace Common
       API::IRunningStrategy& m_runningStrategy;
       boost::filesystem::path m_configurationFilePath;
       log4cxx::LoggerPtr m_logger;
-      std::unique_ptr<GSC::Common::API::IMatcher> m_matcher;
+      std::unique_ptr<GSC::API::IMatcher> m_matcher;
    };
 }}

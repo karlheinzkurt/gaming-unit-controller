@@ -4,7 +4,7 @@
     This is an internal header file.
 */
 
-#include "IUnitCounter.h"
+#include "gsclib/api/include/IUnitCounter.h"
 
 #include <chrono>
 #include <iosfwd>
@@ -19,9 +19,9 @@ namespace Internal ///< Internal
 {
    /** @brief Base class for counters for any unit.
     */
-   struct AUnitCounterBase : public IUnitCounter
+   struct AUnitCounterBase : public API::IUnitCounter
    {
-      AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle = getDefaultUpdateCycle());
+      AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle = API::getDefaultUpdateCycle());
       
       AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun);
       
@@ -59,7 +59,7 @@ namespace Internal ///< Internal
    {
       using AUnitCounterBase::AUnitCounterBase;
       
-      virtual Unit getUnit() const override;
+      virtual API::Unit getUnit() const override;
       
       virtual time_point_type getUnitBegin(time_point_type const& point) override;
    };
@@ -71,7 +71,7 @@ namespace Internal ///< Internal
    {  
       using AUnitCounterBase::AUnitCounterBase;
     
-      virtual Unit getUnit() const override;
+      virtual API::Unit getUnit() const override;
       
       virtual time_point_type getUnitBegin(time_point_type const& point) override;
    };

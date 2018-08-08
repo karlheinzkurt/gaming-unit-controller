@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IRunningStrategy.h"
+#include "gsclib/api/include/IRunningStrategy.h"
 
 #include <chrono>
 #include <mutex>

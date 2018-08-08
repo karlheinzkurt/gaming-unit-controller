@@ -39,9 +39,11 @@ namespace Common
       if ( !boost::filesystem::exists( m_configurationFilePath ) )
       {
          m_matcher = CMatcherFactory().create();
-         m_matcher->add(CMatchingRule("example", 
-             {".*match.*", ".*or_match.*"}
-            ,{".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
+         m_matcher->add(std::make_unique<CMatchingRule>(
+             "example"
+            ,std::chrono::hours(1)
+            ,std::list<std::string>{".*match.*", ".*or_match.*"}
+            ,std::list<std::string>{".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
          auto const examplePath = boost::filesystem::change_extension(m_configurationFilePath, "example.xml");
          save(examplePath);
          
@@ -80,10 +82,10 @@ namespace Common
          influxAdapter.insertActive(matches);
          
          Statistics statistics( m_logger, counterFilePath );
-         for ( auto& match : matches )
+         for (auto& match : matches)
          {
-            statistics.add( match->getName() );
-            LOG4CXX_INFO( m_logger, *match ); 
+            statistics.add(*match);
+            LOG4CXX_INFO(m_logger, *match);
          }
          
          std::set< std::string > const exceeds( statistics.getCurrentlyExceeding( /*matches, */std::chrono::hours( 1 ) ) );
@@ -113,9 +115,6 @@ namespace Common
       boost::property_tree::read_xml( path.string(), tree, boost::property_tree::xml_parser::trim_whitespace );
       auto ptMatcher( tree.get_child_optional( "matcher" ) );
       if ( ptMatcher )
-      {
-         CMatcherFactory matcherFactory;
-         m_matcher = matcherFactory.create(*ptMatcher);
-      }
+      {  m_matcher = CMatcherFactory().create(*ptMatcher); }
    }
 }}

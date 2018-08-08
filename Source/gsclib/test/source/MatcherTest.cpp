@@ -1,5 +1,6 @@
 
 #include "gsclib/common/include/CMatcher.h"
+#include "gsclib/common/include/CMatchingRule.h"
 #include "gsclib/common/include/CMatcherFactory.h"
 
 #include "gsclib/infrastructure/mock/include/CProcess.h"
@@ -34,7 +35,7 @@ TEST(Matcher, NoCommandLineNoMatch)
    EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return(""));
    
    CMatcher matcher;
-   matcher.add(CMatchingRule("thatRule", {".*java.*jenkins.*"}, {}));
+   matcher.add(std::make_unique<CMatchingRule>("thatRule", std::chrono::seconds(), std::list<std::string>{".*java.*jenkins.*"}, std::list<std::string>{}));
    EXPECT_EQ(size_t(0), matcher.matches(process).size());
 }
 
@@ -44,7 +45,7 @@ TEST(Matcher, MatchingRule)
    EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return("/usr/bin/java -Djava.awt.headless=true -jar /usr/share/jenkins/jenkins.war --webroot=/var/cache/jenkins/war --httpPort=9090"));
    
    CMatcher matcher;
-   matcher.add(CMatchingRule("thatRule", {".*java.*jenkins.*"}, {}));
+   matcher.add(std::make_unique<CMatchingRule>("thatRule", std::chrono::seconds(), std::list<std::string>{".*java.*jenkins.*"}, std::list<std::string>{}));
    auto matches(matcher.matches(process));
    EXPECT_EQ(size_t(1), matches.size());
    EXPECT_EQ("thatRule", (*matches.begin())->getName());
@@ -57,7 +58,7 @@ TEST(Matcher, NotMatchingRule)
    EXPECT_CALL(*process, getCommandLine()).WillRepeatedly(::testing::Return("/usr/bin/java -Djava.awt.headless=true -jar /usr/share/jenkins/jenkins.war --webroot=/var/cache/jenkins/war --httpPort=9090"));
    
    CMatcher matcher;
-   matcher.add(CMatchingRule("thatRule", {".*java.*"}, {".*jenkins.*"}));
+   matcher.add(std::make_unique<CMatchingRule>("thatRule", std::chrono::seconds(), std::list<std::string>{".*java.*"}, std::list<std::string>{".*jenkins.*"}));
    auto matches(matcher.matches(process));
    EXPECT_EQ(size_t(0), matches.size());
 }
@@ -66,8 +67,8 @@ TEST(Matcher, SerializeRoundTrip)
 { 
    CMatcherFactory factory;
    auto source = factory.create();
-   source->add(CMatchingRule("bli", {"java.+", "blub$"}, {".*eclipse.*"}));
-   source->add(CMatchingRule("bla", {"java.+"}, {".*jenkins.*", "^blabla.*"}));
+   source->add(std::make_unique<CMatchingRule>("bli", std::chrono::seconds(), std::list<std::string>{"java.+", "blub$"}, std::list<std::string>{".*eclipse.*"}));
+   source->add(std::make_unique<CMatchingRule>("bla", std::chrono::seconds(), std::list<std::string>{"java.+"}, std::list<std::string>{".*jenkins.*", "^blabla.*"}));
    boost::property_tree::ptree pt = source->serialize();
    auto destination = factory.create(pt);
    

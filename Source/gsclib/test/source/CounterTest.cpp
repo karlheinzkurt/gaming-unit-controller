@@ -170,7 +170,7 @@ TEST(WeekCounter, UnitBegin_Fall)
 
 TEST( CounterTest, Init )
 {
-   auto counter(counterFactory.create(GSC::Common::Unit::Day, std::chrono::seconds(1)));
+   auto counter(counterFactory.create(GSC::API::Unit::Day, std::chrono::seconds(1)));
    EXPECT_FALSE(counter->exceedsLimit(std::chrono::system_clock::now()));
    EXPECT_FALSE(counter->exceedsLimit(std::chrono::system_clock::now()+std::chrono::hours(230)));
    EXPECT_FALSE(counter->exceedsLimit(std::chrono::system_clock::now()-std::chrono::hours(230)));
@@ -178,7 +178,7 @@ TEST( CounterTest, Init )
 
 TEST( CounterTest, FirstUpdateDoesNotExceed )
 {
-   auto counter(counterFactory.create(GSC::Common::Unit::Day, std::chrono::seconds(1)));
+   auto counter(counterFactory.create(GSC::API::Unit::Day, std::chrono::seconds(1)));
    EXPECT_FALSE(counter->exceedsLimit(getTimePoint("26.12.2016 00:03:00")));
    counter->doUpdate(getTimePoint("26.12.2016 00:04:00"));
    EXPECT_FALSE(counter->exceedsLimit(getTimePoint("26.12.2016 00:04:00")));
@@ -190,7 +190,7 @@ TEST( CounterTest, HourPerDay )
 {
    auto now(getTimePoint("29.02.2016 09:13:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Day, std::chrono::hours(1)));
+   auto counter(counterFactory.create(GSC::API::Unit::Day, std::chrono::hours(1)));
    for ( unsigned int i(0); i < 60; ++i)
    {
       counter->doUpdate(now);
@@ -205,7 +205,7 @@ TEST( CounterTest, HoursPerDay )
 {
    auto now(getTimePoint("29.02.2016 09:13:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Day, std::chrono::hours(3)));
+   auto counter(counterFactory.create(GSC::API::Unit::Day, std::chrono::hours(3)));
    for ( unsigned int i(0); i < (3 * 60); ++i)
    {
       counter->doUpdate(now);
@@ -220,7 +220,7 @@ TEST( CounterTest, HoursPerWeek )
 {
    auto now(getTimePoint("03.03.2016 19:13:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Week, std::chrono::hours(15)));
+   auto counter(counterFactory.create(GSC::API::Unit::Week, std::chrono::hours(15)));
    for ( unsigned int i(0); i < (15 * 60); ++i)
    {
       counter->doUpdate(now);
@@ -235,7 +235,7 @@ TEST( CounterTest, OverlappingDay )
 {
    auto now(getTimePoint("29.02.2016 23:13:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Day, std::chrono::hours(1)));
+   auto counter(counterFactory.create(GSC::API::Unit::Day, std::chrono::hours(1)));
    for ( unsigned int i(0); i < (47 + (1 * 60)); ++i)
    {
       counter->doUpdate(now);
@@ -250,7 +250,7 @@ TEST( CounterTest, OverlappingWeek_OverlappingMonth )
 {
    auto now(getTimePoint("28.02.2016 20:13:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Week, std::chrono::hours(15)));
+   auto counter(counterFactory.create(GSC::API::Unit::Week, std::chrono::hours(15)));
    for ( unsigned int i(0); i < ((4 * 60 - 13) + (15 * 60)); ++i)
    {
       counter->doUpdate(now);
@@ -265,7 +265,7 @@ TEST( CounterTest, OverlappingWeek_WithinMonth )
 {
    auto now(getTimePoint("06.03.2016 20:13:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Week, std::chrono::hours(15)));
+   auto counter(counterFactory.create(GSC::API::Unit::Week, std::chrono::hours(15)));
    for ( unsigned int i(0); i < ((4 * 60 - 13) + (15 * 60)); ++i)
    {
       counter->doUpdate(now);
@@ -280,7 +280,7 @@ TEST( CounterTest, HourPerDay_Split2 )
 {
    auto now(getTimePoint("29.02.2016 09:13:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Day, std::chrono::hours(1)));
+   auto counter(counterFactory.create(GSC::API::Unit::Day, std::chrono::hours(1)));
    for ( unsigned int i(0); i < 30; ++i)
    {
       counter->doUpdate(now);
@@ -308,7 +308,7 @@ TEST( CounterTest, HourPerDay_Split4 )
 {
    auto now(getTimePoint("29.02.2016 07:59:00"));
    
-   auto counter(counterFactory.create(GSC::Common::Unit::Day, std::chrono::hours(1)));
+   auto counter(counterFactory.create(GSC::API::Unit::Day, std::chrono::hours(1)));
    for ( unsigned int i(0); i < 10; ++i)
    {
       counter->doUpdate(now);
@@ -362,7 +362,7 @@ TEST( CounterTest, HourPerDay_Split4 )
 TEST(Counter, SerializeRoundTrip)
 { 
    auto now(getTimePoint("29.02.2016 09:13:00"));
-   auto source(counterFactory.create(GSC::Common::Unit::Day, std::chrono::hours(1)));
+   auto source(counterFactory.create(GSC::API::Unit::Day, std::chrono::hours(1)));
    source->doUpdate(now);
    source->doUpdate(now + std::chrono::minutes(1));
    source->doUpdate(now + std::chrono::minutes(2));

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gsclib/api/include/IMatcher.h"
+
 #include <boost/filesystem/path.hpp>
 #include <log4cxx/logger.h>
 
@@ -17,8 +19,8 @@ namespace Common
       
       ~Statistics(); ///< keep to get private impl deleted properly
       
-      void add( std::string const& match );
-      std::set< std::string > getCurrentlyExceeding( std::chrono::seconds const& limit );
+      void add(API::IMatch const& match);
+      std::set<std::string> getCurrentlyExceeding(std::chrono::seconds const& limit);
       
    private:
       void load();

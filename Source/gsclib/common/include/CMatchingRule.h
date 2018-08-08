@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gsclib/api/include/IMatchingRule.h"
+
 #include "gsclib/infrastructure/api/include/IProcess.h"
 
 #include <boost/property_tree/ptree_fwd.hpp> ///< fwd only
@@ -9,20 +11,18 @@
 #include <set>
 #include <initializer_list>
 #include <regex>
-#include <iosfwd> ///< fwd only
 
 namespace GSC
 {
 namespace Common
 {   
-   struct CMatchingRule
+   struct CMatchingRule : API::IMatchingRule
    {     
       typedef std::set<CMatchingRule> SetType;
       
-      CMatchingRule(std::string name, std::initializer_list<std::string> whiteList, std::initializer_list<std::string> blackList);
-      CMatchingRule(std::string name, std::list<std::string> whiteList, std::list<std::string> blackList);
+      CMatchingRule(std::string name, std::chrono::seconds limit, std::list<std::string> whiteList, std::list<std::string> blackList);
       
-      ~CMatchingRule(); ///< Keep to get forward declared type deleted properly
+      virtual ~CMatchingRule(); ///< Keep to get forward declared type deleted properly
       
       CMatchingRule(CMatchingRule const&) = delete;
       CMatchingRule& operator=(CMatchingRule const&) = delete;
@@ -30,28 +30,26 @@ namespace Common
       CMatchingRule(CMatchingRule&&);
       CMatchingRule& operator=(CMatchingRule&&);
       
-      bool matches(std::string const& string) const;
+      virtual bool matches(std::string const& string) const override;
       
-      std::string toString() const;
+      virtual std::string toString() const override;
       
-      std::string const& getName() const;
+      virtual std::string const& getName() const override;
       
-      std::list<std::string> const& getWhitelist() const;
+      virtual std::chrono::seconds getLimit() const override;
       
-      std::list<std::string> const& getBlacklist() const;
+      virtual std::list<std::string> const& getWhitelist() const override;
+      
+      virtual std::list<std::string> const& getBlacklist() const override;
             
-      boost::property_tree::ptree serialize() const;
+      virtual boost::property_tree::ptree serialize() const override;
       
-      static CMatchingRule deserialize(boost::property_tree::ptree const& ptRule);
+      static std::unique_ptr<API::IMatchingRule> deserialize(boost::property_tree::ptree const& ptRule);
             
    private:
       std::string m_name;
+      std::chrono::seconds m_limit;
       struct List;
       std::unique_ptr<List> m_whitelist, m_blacklist;
    };
-   
-   bool operator<(CMatchingRule const& a, CMatchingRule const& b);
-   bool operator==(CMatchingRule const& a, CMatchingRule const& b);
-   std::ostream& operator<<( std::ostream& os, CMatchingRule const& rule );
-   
 }}

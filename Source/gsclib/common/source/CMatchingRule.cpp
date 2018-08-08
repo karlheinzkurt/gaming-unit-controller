@@ -11,13 +11,7 @@ namespace GSC
 namespace Common
 {  
    struct CMatchingRule::List
-   {
-      List(std::initializer_list<std::string> list) :
-          m_list(list)
-         ,m_string(boost::algorithm::join(m_list, ", "))
-         ,m_expression(std::string("(") + boost::algorithm::join(m_list, "|" ) + ")", std::regex_constants::icase)
-      {}
-      
+   {     
       List(std::list<std::string> list) :
           m_list(list)
          ,m_string(boost::algorithm::join(m_list, ", "))
@@ -28,15 +22,10 @@ namespace Common
       std::string m_string; 
       std::regex m_expression;
    };
-  
-   CMatchingRule::CMatchingRule(std::string name, std::initializer_list<std::string> whitelist, std::initializer_list<std::string> blacklist) :
-       m_name(name)
-      ,m_whitelist(std::make_unique<List>(whitelist))
-      ,m_blacklist(std::make_unique<List>(blacklist))
-   {}
       
-   CMatchingRule::CMatchingRule(std::string name, std::list<std::string> whitelist, std::list<std::string> blacklist) :
-       m_name(name)
+   CMatchingRule::CMatchingRule(std::string name, std::chrono::seconds limit, std::list<std::string> whitelist, std::list<std::string> blacklist) 
+      :m_name(name)
+      ,m_limit(limit)
       ,m_whitelist(std::make_unique<List>(whitelist))
       ,m_blacklist(std::make_unique<List>(blacklist))
    {}
@@ -65,39 +54,22 @@ namespace Common
    }
    
    std::string const& CMatchingRule::getName() const
-   {
-      return m_name;
-   }
+   {  return m_name; }
+   
+   std::chrono::seconds CMatchingRule::getLimit() const
+   {  return m_limit; }
    
    std::list<std::string> const& CMatchingRule::getWhitelist() const
-   {
-      return m_whitelist->m_list;
-   }
+   {  return m_whitelist->m_list; }
       
    std::list<std::string> const& CMatchingRule::getBlacklist() const
-   {
-      return m_blacklist->m_list;
-   }
-     
-   bool operator<(CMatchingRule const& a, CMatchingRule const& b)
-   {
-      return std::tie(a.getName(), a.getWhitelist(), a.getBlacklist()) < std::tie(b.getName(), b.getWhitelist(), b.getBlacklist());
-   }
+   {  return m_blacklist->m_list; }
    
-   bool operator==(CMatchingRule const& a, CMatchingRule const& b)
-   {
-      return std::tie(a.getName(), a.getWhitelist(), a.getBlacklist()) == std::tie(b.getName(), b.getWhitelist(), b.getBlacklist());
-   }
-   
-   std::ostream& operator<<( std::ostream& os, CMatchingRule const& rule )
-   {
-      return os << rule.toString();
-   }
-
    boost::property_tree::ptree CMatchingRule::serialize() const
    {
       boost::property_tree::ptree ptRule;
       ptRule.put("name", getName());
+      ptRule.put("limit", getLimit().count());
       {
          boost::property_tree::ptree ptWhitelist;
          for (auto const& e : getWhitelist())
@@ -116,20 +88,18 @@ namespace Common
       }
       return ptRule;
    }
-   CMatchingRule CMatchingRule::deserialize(boost::property_tree::ptree const& ptRule)
+   
+   std::unique_ptr<API::IMatchingRule> CMatchingRule::deserialize(boost::property_tree::ptree const& ptRule)
    {
-      auto name = ptRule.get< std::string >( "name" );
+      auto name = ptRule.get<std::string>("name");
+      std::chrono::seconds limit(ptRule.get("limit", 0));
       std::list<std::string> whitelist;
       for (auto const& ptWhitelist : ptRule.get_child( "whitelist" ))
-      {
-         whitelist.emplace_back(ptWhitelist.second.get< std::string >(""));
-      }
+      {  whitelist.emplace_back(ptWhitelist.second.get< std::string >("")); }
       std::list<std::string> blacklist;
       for (auto const& ptBlacklist : ptRule.get_child( "blacklist" ))
-      {
-         blacklist.emplace_back(ptBlacklist.second.get< std::string >(""));
-      }
-      return CMatchingRule(name, whitelist, blacklist);
+      {  blacklist.emplace_back(ptBlacklist.second.get< std::string >("")); }
+      return std::make_unique<CMatchingRule>(name, limit, whitelist, blacklist);
    }
    
 }}

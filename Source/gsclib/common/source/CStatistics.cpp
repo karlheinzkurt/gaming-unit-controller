@@ -22,7 +22,7 @@ namespace Common
    
    namespace
    {
-      typedef std::map< std::string, std::unique_ptr<IUnitCounter> > CounterMapType;
+      typedef std::map< std::string, std::unique_ptr<API::IUnitCounter> > CounterMapType;
    }
    
    struct Statistics::Impl
@@ -66,9 +66,9 @@ namespace Common
       {  LOG4CXX_ERROR( m_impl->m_logger, e.what() ); }
    }
    
-   void Statistics::add( std::string const& match )
+   void Statistics::add(API::IMatch const& match)
    {
-      auto& counter( m_impl->m_counter[match] );
+      auto& counter( m_impl->m_counter[match.getName()] );
       if (!counter)
       {
          /** \todo When the counter is new and created the first time,
@@ -82,7 +82,7 @@ namespace Common
           *  and what happens then with counters already created. We would 
           *  have to update them. Actually it is quite clear: Remove limit from CUnitCounter
           */
-         counter = CUnitCounterFactory().create(Unit::Day, std::chrono::hours(1));
+         counter = CUnitCounterFactory().create(API::Unit::Day, match.getRule().getLimit());
       }
    
       counter->doUpdate(m_impl->m_now);
