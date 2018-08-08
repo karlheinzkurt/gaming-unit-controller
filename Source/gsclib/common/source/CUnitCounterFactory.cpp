@@ -14,12 +14,12 @@ namespace Common
       m_updateCycle(updateCycle)
    {}
    
-   std::unique_ptr<API::IUnitCounter> CUnitCounterFactory::create(API::Unit unit, std::chrono::seconds limit)
+   std::unique_ptr<API::IUnitCounter> CUnitCounterFactory::create(API::Unit unit)
    {
       switch(unit)
       {
-         case API::Unit::Day:  return std::make_unique<Internal::CDayCounter >(limit, m_updateCycle); break;
-         case API::Unit::Week: return std::make_unique<Internal::CWeekCounter>(limit, m_updateCycle); break;
+         case API::Unit::Day:  return std::make_unique<Internal::CDayCounter >(m_updateCycle); break;
+         case API::Unit::Week: return std::make_unique<Internal::CWeekCounter>(m_updateCycle); break;
       }
       throw API::CUnsupportedUnitException("Unsupported unit");
    }
@@ -29,7 +29,6 @@ namespace Common
       std::istringstream is(ptCounter.get("unit", ""));
       API::Unit unit;
       is >> unit;
-      std::chrono::seconds const limit(ptCounter.get("limit", 0));
       std::chrono::seconds const active(ptCounter.get("active", 0));
       API::IUnitCounter::time_point_type const previousRun(API::IUnitCounter::time_point_type::duration(ptCounter.get<API::IUnitCounter::time_point_type::rep>("previousRun")));
       
@@ -39,8 +38,8 @@ namespace Common
       
       switch (unit)
       {
-         case API::Unit::Day:  return std::make_unique<Internal::CDayCounter>(limit, m_updateCycle, active, previousRun); break;
-         case API::Unit::Week: return std::make_unique<Internal::CWeekCounter>(limit, m_updateCycle, active, previousRun); break;
+         case API::Unit::Day:  return std::make_unique<Internal::CDayCounter>(m_updateCycle, active, previousRun); break;
+         case API::Unit::Week: return std::make_unique<Internal::CWeekCounter>(m_updateCycle, active, previousRun); break;
       }
       throw API::CUnsupportedUnitException("Unsupported unit");
    }

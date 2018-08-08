@@ -40,20 +40,16 @@ namespace API
       /** @return Unit used to calculate whether the limit gets exceeded.
        */
       virtual Unit getUnit() const = 0;
-      
-      /** @return Limit for the unit. 
-       */
-      virtual std::chrono::seconds getLimit() const = 0;
-       
+            
       /** @return Seconds marked as active within the current unit.
        */
       virtual std::chrono::seconds getActive() const = 0;
       
-      /** @param point in time the calculation should take place.
-          @return true when the given point in time exceeds the limit for 
+      /** @param limit to be checked if exceeded
+          @return true when the given limit is exceeded for 
                   the current unit, otherwise false.
        */
-      virtual bool exceedsLimit(time_point_type const& point) const = 0;
+      virtual bool exceedsLimit(std::chrono::seconds limit) const = 0;
       
       /** @param point in time to be used to update the internal counters. 
        */

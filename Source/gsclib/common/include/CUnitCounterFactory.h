@@ -20,7 +20,7 @@ namespace Common
    {
       explicit CUnitCounterFactory(std::chrono::seconds updateCycle = API::getDefaultUpdateCycle());
       
-      std::unique_ptr<API::IUnitCounter> create(API::Unit unit, std::chrono::seconds limit);
+      std::unique_ptr<API::IUnitCounter> create(API::Unit unit);
       std::unique_ptr<API::IUnitCounter> create(boost::property_tree::ptree const&);
       
    private:

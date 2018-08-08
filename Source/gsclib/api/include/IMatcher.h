@@ -16,7 +16,13 @@ namespace API
 {
    struct IMatch
    {
-      typedef std::set<std::unique_ptr<IMatch>> SetType;
+      struct MatchLess
+      {
+         bool operator()(std::unique_ptr<IMatch> const& a, std::unique_ptr<IMatch> const& b) const
+         {  return a->getName() < b->getName(); }
+      };
+      
+      typedef std::set<std::unique_ptr<IMatch>, MatchLess> SetType;
       
       virtual ~IMatch() = default;
       

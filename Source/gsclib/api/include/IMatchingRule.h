@@ -15,7 +15,13 @@ namespace API
 {   
    struct IMatchingRule
    {     
-      typedef std::set<std::unique_ptr<IMatchingRule>> SetType;
+      struct MatchingRuleLess
+      {
+         bool operator()(std::unique_ptr<IMatchingRule> const& a, std::unique_ptr<IMatchingRule> const& b) const
+         {  return a->getName() < b->getName(); }
+      };
+      
+      typedef std::set<std::unique_ptr<IMatchingRule>, MatchingRuleLess> SetType;
             
       virtual ~IMatchingRule() = default;
       

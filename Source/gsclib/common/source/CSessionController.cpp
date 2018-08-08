@@ -77,27 +77,17 @@ namespace Common
          LOG4CXX_INFO( m_logger, "Matching processes found: " << std::accumulate( 
              matches.begin(), matches.end(), 0
             ,[]( int v, auto const& match ){ return v + match->getProcesses().size(); } ) );
-         LOG4CXX_INFO( m_logger, "Matching applications found: " << matches.size() );
-         
-         influxAdapter.insertActive(matches);
          
          Statistics statistics( m_logger, counterFilePath );
-         for (auto& match : matches)
-         {
-            statistics.add(*match);
-            LOG4CXX_INFO(m_logger, *match);
-         }
          
-         std::set< std::string > const exceeds( statistics.getCurrentlyExceeding( /*matches, */std::chrono::hours( 1 ) ) );
+         statistics.updateCounters(matches);
+         LOG4CXX_INFO( m_logger, "Matching applications found: " << matches.size() );
+         for (auto& match : matches) { LOG4CXX_INFO(m_logger, *match); }
+         influxAdapter.insertActive(matches);
+
+         auto const exceeds(statistics.filterExceeding(std::move(matches)));
          LOG4CXX_INFO( m_logger, "Exceeding applications found: " << exceeds.size() );
-         for ( auto& exceed : exceeds )
-         {
-            /** \todo Kill exceeding processes
-             *  \todo log real processes
-             */
-            LOG4CXX_INFO( m_logger, exceed );
-         }
-         
+         for (auto& exceed : exceeds) { LOG4CXX_INFO( m_logger, *exceed ); }         
          influxAdapter.insertExceeding(exceeds);
       });
    }

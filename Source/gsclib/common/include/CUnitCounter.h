@@ -21,19 +21,17 @@ namespace Internal ///< Internal
     */
    struct AUnitCounterBase : public API::IUnitCounter
    {
-      AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle = API::getDefaultUpdateCycle());
+      AUnitCounterBase(std::chrono::seconds cycle = API::getDefaultUpdateCycle());
       
-      AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun);
+      AUnitCounterBase(std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun);
       
       virtual std::string toString() const override;
       
       virtual boost::property_tree::ptree serialize() const override;
            
    protected:      
-      virtual bool exceedsLimit( time_point_type const& point ) const override;
-      
-      virtual std::chrono::seconds getLimit() const override;
-           
+      virtual bool exceedsLimit(std::chrono::seconds) const override;
+                
       virtual std::chrono::seconds getActive() const override;
       
       virtual void doUpdate(time_point_type const& now) override;
@@ -46,7 +44,6 @@ namespace Internal ///< Internal
       
       virtual time_point_type getUnitBegin(time_point_type const& point) = 0;
       
-      std::chrono::seconds const m_limit;
       std::chrono::seconds const m_cycle;
       std::chrono::seconds m_active;
       time_point_type m_previousRun;

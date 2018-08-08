@@ -39,7 +39,7 @@ namespace API
    
    bool operator==(IUnitCounter const& a, IUnitCounter const& b)
    {
-      return std::make_tuple(a.getUnit(), a.getLimit(), a.getActive()) == std::make_tuple(b.getUnit(), b.getLimit(), b.getActive());
+      return std::make_tuple(a.getUnit(), a.getActive()) == std::make_tuple(b.getUnit(), b.getActive());
    }
    
    std::ostream& operator<<(std::ostream& os, IUnitCounter const& counter)

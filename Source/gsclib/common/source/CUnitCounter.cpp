@@ -1,6 +1,8 @@
 
 #include "../include/CUnitCounter.h"
 
+#include "gsclib/utility/include/TimeUtility.h"
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -11,16 +13,14 @@ namespace Common
 {
 namespace Internal ///< Internal
 {
-   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle) : 
-       m_limit(limit)
-      ,m_cycle(cycle)
+   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds cycle) : 
+       m_cycle(cycle)
       ,m_active(0)
       ,m_previousRun() 
    {}
    
-   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds limit, std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun) :
-       m_limit(limit)
-      ,m_cycle(cycle)
+   AUnitCounterBase::AUnitCounterBase(std::chrono::seconds cycle, std::chrono::seconds active, time_point_type previousRun) :
+       m_cycle(cycle)
       ,m_active(active)
       ,m_previousRun(previousRun) 
    {}
@@ -29,19 +29,13 @@ namespace Internal ///< Internal
    {
       std::ostringstream os;
       os << "Unit: "   << getUnit()        << ", "
-         << "Limit: "  << m_limit.count()  << "s, "
-         << "Active: " << m_active.count() << "s";
+         << "Active: " << Utility::to_string(m_active);
       return os.str();
    }
    
-   bool AUnitCounterBase::exceedsLimit( time_point_type const& point ) const
+   bool AUnitCounterBase::exceedsLimit(std::chrono::seconds limit) const
    {
-      return m_active >= m_limit;
-   }
-   
-   std::chrono::seconds AUnitCounterBase::getLimit() const
-   {
-      return m_limit;
+      return m_active >= limit;
    }
    
    std::chrono::seconds AUnitCounterBase::getActive() const
@@ -104,7 +98,6 @@ namespace Internal ///< Internal
       std::ostringstream os;
       os << getUnit();
       ptCounter.put( "unit", os.str() );
-      ptCounter.put( "limit", m_limit.count() );
       ptCounter.put( "active", m_active.count() );
       ptCounter.put( "previousRun", m_previousRun.time_since_epoch().count() );
       return std::move(ptCounter);

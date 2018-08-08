@@ -66,35 +66,36 @@ namespace Common
       {  LOG4CXX_ERROR( m_impl->m_logger, e.what() ); }
    }
    
-   void Statistics::add(API::IMatch const& match)
+   void Statistics::updateCounters(API::IMatch::SetType const& matches)
    {
-      auto& counter( m_impl->m_counter[match.getName()] );
-      if (!counter)
+      for (auto const& match : matches)
       {
-         /** \todo When the counter is new and created the first time,
-          *  we pass here some standard values Unit:Day/Limit:Hour
-          *  but this is invalid, this has to come from configuration
-          *  file.
-          *  \todo In general, think about whether it is necessary or 
-          *  reasonable to store the limit inside of the counter or 
-          *  if it should be passed to the method if the counter exceeds 
-          *  the limit as an argument. Because the limit could be changed
-          *  and what happens then with counters already created. We would 
-          *  have to update them. Actually it is quite clear: Remove limit from CUnitCounter
-          */
-         counter = CUnitCounterFactory().create(API::Unit::Day, match.getRule().getLimit());
+         auto& counter( m_impl->m_counter[match->getName()] );
+         if (!counter)
+         {
+            /** \todo When the counter is new and created the first time,
+             *  we pass here some standard values Unit:Day
+             *  but this is invalid, this has to come from configuration
+             *  file.
+             */
+            counter = CUnitCounterFactory().create(API::Unit::Day);
+         }
+      
+         counter->doUpdate(m_impl->m_now);
       }
-   
-      counter->doUpdate(m_impl->m_now);
    }
    
-   std::set< std::string > Statistics::getCurrentlyExceeding( std::chrono::seconds const& limit )
+   API::IMatch::SetType Statistics::filterExceeding(API::IMatch::SetType matches)
    {
-      std::set< std::string > results;
-      for ( auto& tuple : m_impl->m_counter )
+      API::IMatch::SetType results;
+      for (auto& match : matches)
       {
-         if ( tuple.second->exceedsLimit( m_impl->m_lastRun ) )
-         {  results.insert( tuple.first ); }
+         auto item(m_impl->m_counter.find(match->getName()));
+         if (item == m_impl->m_counter.end())
+         {  continue; }
+         
+         if (item->second->exceedsLimit(match->getRule().getLimit()))
+         {  results.emplace(std::move(match)); }
       }
       return results;
    }

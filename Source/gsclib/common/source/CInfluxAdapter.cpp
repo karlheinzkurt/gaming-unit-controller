@@ -11,8 +11,16 @@ namespace GSC { namespace Common {
    
 struct CInfluxAdapter::Impl   
 {
+   static web::http::client::http_client_config doConfig()
+   {
+      web::http::client::http_client_config config;
+      config.set_timeout(config.timeout()); ///< Keep default but maybe we should decrease it to a few s
+      return config;
+   }
+   
    Impl(web::uri uri, std::string db) 
-      :m_client(uri) 
+      :m_config(doConfig())
+      ,m_client(uri, m_config) 
       ,m_queryURI(web::uri_builder("/query").append_query("db", db).to_uri())
       ,m_writeURI(web::uri_builder("/write").append_query("db", db).to_uri())
       ,m_pingURI(web::uri_builder("/ping").to_uri())
@@ -60,6 +68,8 @@ struct CInfluxAdapter::Impl
       });
    }
    
+private:
+   web::http::client::http_client_config m_config;
    web::http::client::http_client m_client;
    web::uri m_queryURI;
    web::uri m_writeURI;
@@ -83,12 +93,12 @@ void CInfluxAdapter::insertActive(API::IMatch::SetType const& active)
    m_impl->write(os.str()).wait();
 }
 
-void CInfluxAdapter::insertExceeding(std::set<std::string> const& exceeding)
+void CInfluxAdapter::insertExceeding(API::IMatch::SetType const& exceeding)
 {
    if (exceeding.empty()) return;
    
    std::ostringstream os;
-   for (auto const& e : exceeding) { os << "exceeding " << e << "=1.0\n"; }
+   for (auto const& e : exceeding) { os << "exceeding " << e->getName() << "=1.0\n"; }
    m_impl->write(os.str()).wait();
 }
 

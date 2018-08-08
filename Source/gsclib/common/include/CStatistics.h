@@ -15,12 +15,12 @@ namespace Common
 {
    struct Statistics
    {
-      Statistics( log4cxx::LoggerPtr logger, boost::filesystem::path const& path );
+      Statistics(log4cxx::LoggerPtr logger, boost::filesystem::path const& path);
       
       ~Statistics(); ///< keep to get private impl deleted properly
       
-      void add(API::IMatch const& match);
-      std::set<std::string> getCurrentlyExceeding(std::chrono::seconds const& limit);
+      void updateCounters(API::IMatch::SetType const& matches);
+      API::IMatch::SetType filterExceeding(API::IMatch::SetType matches);
       
    private:
       void load();
