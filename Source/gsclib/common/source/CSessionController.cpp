@@ -61,9 +61,17 @@ namespace Common
          }
       }
       
-      CInfluxAdapter influxAdapter;
+      std::unique_ptr<CInfluxAdapter> influxAdapter;
       m_runningStrategy.run([this, counterFilePath, &influxAdapter]
       {
+         if (!influxAdapter)
+         {
+            try { influxAdapter = std::make_unique<CInfluxAdapter>(); }
+            catch (std::exception const& e)
+            {  LOG4CXX_WARN(m_logger, "Failed to instantiate CInfluxAdapter with: " << e.what()); }
+         }
+            
+            
          LOG4CXX_INFO( m_logger, "=====> Next Cycle <=====");
          load(m_configurationFilePath);
       
@@ -73,7 +81,7 @@ namespace Common
          auto const signallableProcesses(m_system.getSignallableProcesses());
          LOG4CXX_INFO( m_logger, "Signallable processes found: " << signallableProcesses.size() );
               
-         auto const matches( m_matcher->matches( signallableProcesses ) );
+         auto matches( m_matcher->matches( signallableProcesses ) );
          LOG4CXX_INFO( m_logger, "Matching processes found: " << std::accumulate( 
              matches.begin(), matches.end(), 0
             ,[]( int v, auto const& match ){ return v + match->getProcesses().size(); } ) );
@@ -83,12 +91,12 @@ namespace Common
          statistics.updateCounters(matches);
          LOG4CXX_INFO( m_logger, "Matching applications found: " << matches.size() );
          for (auto& match : matches) { LOG4CXX_INFO(m_logger, *match); }
-         influxAdapter.insertActive(matches);
+         if (influxAdapter) { influxAdapter->insertActive(matches); }
 
-         auto const exceeds(statistics.filterExceeding(std::move(matches)));
+         auto exceeds(statistics.filterExceeding(std::move(matches)));
          LOG4CXX_INFO( m_logger, "Exceeding applications found: " << exceeds.size() );
          for (auto& exceed : exceeds) { LOG4CXX_INFO( m_logger, *exceed ); }         
-         influxAdapter.insertExceeding(exceeds);
+         if (influxAdapter) { influxAdapter->insertExceeding(exceeds); }
       });
    }
    

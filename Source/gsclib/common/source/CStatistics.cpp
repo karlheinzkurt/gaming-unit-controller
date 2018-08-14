@@ -85,19 +85,20 @@ namespace Common
       }
    }
    
-   API::IMatch::SetType Statistics::filterExceeding(API::IMatch::SetType matches)
-   {
-      API::IMatch::SetType results;
-      for (auto& match : matches)
+   API::IMatch::SetType Statistics::filterExceeding(API::IMatch::SetType&& matches)
+   {      
+      while (!matches.empty())
       {
+         auto it = matches.begin();
+         auto const& match(*it);
          auto item(m_impl->m_counter.find(match->getName()));
          if (item == m_impl->m_counter.end())
          {  continue; }
          
-         if (item->second->exceedsLimit(match->getRule().getLimit()))
-         {  results.emplace(std::move(match)); }
+         if (!item->second->exceedsLimit(match->getRule().getLimit()))
+         {  matches.erase(it); }
       }
-      return results;
+      return std::move(matches);
    }
    
    void Statistics::save() const
