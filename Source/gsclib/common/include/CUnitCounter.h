@@ -30,7 +30,7 @@ namespace Internal ///< Internal
       virtual boost::property_tree::ptree serialize() const override;
            
    protected:      
-      virtual bool exceedsLimit(std::chrono::seconds) const override;
+      virtual boost::rational<int> exceedsLimit(std::chrono::seconds) const override;
                 
       virtual std::chrono::seconds getActive() const override;
       

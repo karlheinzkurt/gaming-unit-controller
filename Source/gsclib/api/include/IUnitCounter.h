@@ -5,6 +5,7 @@
 #include <iosfwd> ///< fwd only
 
 #include <boost/property_tree/ptree_fwd.hpp> ///< fwd only
+#include <boost/rational.hpp>
 
 namespace GSC
 {
@@ -49,7 +50,7 @@ namespace API
           @return true when the given limit is exceeded for 
                   the current unit, otherwise false.
        */
-      virtual bool exceedsLimit(std::chrono::seconds limit) const = 0;
+      virtual boost::rational<int> exceedsLimit(std::chrono::seconds limit) const = 0;
       
       /** @param point in time to be used to update the internal counters. 
        */

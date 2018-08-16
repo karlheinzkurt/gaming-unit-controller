@@ -33,9 +33,9 @@ namespace Internal ///< Internal
       return os.str();
    }
    
-   bool AUnitCounterBase::exceedsLimit(std::chrono::seconds limit) const
+   boost::rational<int> AUnitCounterBase::exceedsLimit(std::chrono::seconds limit) const
    {
-      return m_active >= limit;
+      return (limit == std::chrono::seconds() ? boost::rational<int>() : boost::rational<int>(m_active.count(), limit.count()));
    }
    
    std::chrono::seconds AUnitCounterBase::getActive() const

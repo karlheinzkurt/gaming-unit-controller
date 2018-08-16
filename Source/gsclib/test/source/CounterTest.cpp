@@ -15,6 +15,7 @@
 using namespace GSC::Common;
 
 CUnitCounterFactory counterFactory;
+static auto const one(boost::rational<int>(1,1));
 
 std::chrono::system_clock::time_point getTimePoint(std::string dateTime, bool dst = false)
 {
@@ -171,21 +172,21 @@ TEST(WeekCounter, UnitBegin_Fall)
 TEST( CounterTest, Init )
 {
    auto counter(counterFactory.create(GSC::API::Unit::Day));
-   EXPECT_TRUE(counter->exceedsLimit(-std::chrono::seconds(1)));
-   EXPECT_TRUE(counter->exceedsLimit(std::chrono::seconds(0)));
-   EXPECT_FALSE(counter->exceedsLimit(std::chrono::seconds(1)));
-   EXPECT_FALSE(counter->exceedsLimit(std::chrono::hours(230)));
+   EXPECT_GT(one, counter->exceedsLimit(-std::chrono::seconds(1)));
+   EXPECT_GT(one, counter->exceedsLimit(std::chrono::seconds(0)));
+   EXPECT_GT(one, counter->exceedsLimit(std::chrono::seconds(1)));
+   EXPECT_GT(one, counter->exceedsLimit(std::chrono::hours(230)));
 }
 
 TEST( CounterTest, FirstUpdateDoesNotExceed )
 {
    auto const limit(std::chrono::seconds(1));
    auto counter(counterFactory.create(GSC::API::Unit::Day));
-   EXPECT_FALSE(counter->exceedsLimit(limit));
+   EXPECT_GT(one, counter->exceedsLimit(limit));
    counter->doUpdate(getTimePoint("26.12.2016 00:04:00"));
-   EXPECT_FALSE(counter->exceedsLimit(limit));
+   EXPECT_GT(one, counter->exceedsLimit(limit));
    counter->doUpdate(getTimePoint("26.12.2016 00:05:00"));
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_LE(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, HourPerDay )
@@ -196,11 +197,14 @@ TEST( CounterTest, HourPerDay )
    for ( unsigned int i(0); i < 60; ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_EQ(one, counter->exceedsLimit(limit));
+   now += std::chrono::minutes(1);
+   counter->doUpdate(now);
+   EXPECT_LT(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, HoursPerDay )
@@ -211,11 +215,14 @@ TEST( CounterTest, HoursPerDay )
    for ( unsigned int i(0); i < (3 * 60); ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_LE(one, counter->exceedsLimit(limit));
+   now += std::chrono::minutes(1);
+   counter->doUpdate(now);
+   EXPECT_LT(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, HoursPerWeek )
@@ -226,11 +233,14 @@ TEST( CounterTest, HoursPerWeek )
    for ( unsigned int i(0); i < (15 * 60); ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_EQ(one, counter->exceedsLimit(limit));
+   now += std::chrono::minutes(1);
+   counter->doUpdate(now);
+   EXPECT_LT(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, OverlappingDay )
@@ -241,11 +251,14 @@ TEST( CounterTest, OverlappingDay )
    for ( unsigned int i(0); i < (47 + (1 * 60)); ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_EQ(one, counter->exceedsLimit(limit));
+   now += std::chrono::minutes(1);
+   counter->doUpdate(now);
+   EXPECT_LT(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, OverlappingWeek_OverlappingMonth )
@@ -256,11 +269,14 @@ TEST( CounterTest, OverlappingWeek_OverlappingMonth )
    for ( unsigned int i(0); i < ((4 * 60 - 13) + (15 * 60)); ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_EQ(one, counter->exceedsLimit(limit));
+   now += std::chrono::minutes(1);
+   counter->doUpdate(now);
+   EXPECT_LT(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, OverlappingWeek_WithinMonth )
@@ -271,11 +287,14 @@ TEST( CounterTest, OverlappingWeek_WithinMonth )
    for ( unsigned int i(0); i < ((4 * 60 - 13) + (15 * 60)); ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_EQ(one, counter->exceedsLimit(limit));
+   now += std::chrono::minutes(1);
+   counter->doUpdate(now);
+   EXPECT_LT(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, HourPerDay_Split2 )
@@ -286,24 +305,24 @@ TEST( CounterTest, HourPerDay_Split2 )
    for ( unsigned int i(0); i < 30; ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    
    now += std::chrono::hours(2);
    
    counter->doUpdate(now); ///< First run after long time goes empty
-   EXPECT_FALSE(counter->exceedsLimit(limit));
+   EXPECT_GT(one, counter->exceedsLimit(limit));
    now += std::chrono::minutes(1);
    
    for ( unsigned int i(0); i < 30; ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_EQ(one, counter->exceedsLimit(limit));
 }
 
 TEST( CounterTest, HourPerDay_Split4 )
@@ -314,51 +333,51 @@ TEST( CounterTest, HourPerDay_Split4 )
    for ( unsigned int i(0); i < 10; ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    
    now += std::chrono::hours(1);
    
    counter->doUpdate(now); ///< First run after long time goes empty
-   EXPECT_FALSE(counter->exceedsLimit(limit));
+   EXPECT_GT(one, counter->exceedsLimit(limit));
    now += std::chrono::minutes(1);
    
    for ( unsigned int i(0); i < 15; ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    
    now += std::chrono::minutes(15);
    
    counter->doUpdate(now); ///< First run after long time goes empty
-   EXPECT_FALSE(counter->exceedsLimit(limit));
+   EXPECT_GT(one, counter->exceedsLimit(limit));
    now += std::chrono::minutes(1);
    
    for ( unsigned int i(0); i < 25; ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    
    now += std::chrono::hours(3);
    
    counter->doUpdate(now); ///< First run after long time goes emptygetTimePoint("29.02.2016 00:00:00")
-   EXPECT_FALSE(counter->exceedsLimit(limit));
+   EXPECT_GT(one, counter->exceedsLimit(limit));
    now += std::chrono::minutes(1);
    
    for ( unsigned int i(0); i < 10; ++i)
    {
       counter->doUpdate(now);
-      EXPECT_FALSE(counter->exceedsLimit(limit));
+      EXPECT_GT(one, counter->exceedsLimit(limit));
       now += std::chrono::minutes(1);
    }
    
    counter->doUpdate(now);
-   EXPECT_TRUE(counter->exceedsLimit(limit));
+   EXPECT_EQ(one, counter->exceedsLimit(limit));
 }
 
 TEST(Counter, SerializeRoundTrip)

@@ -95,7 +95,7 @@ namespace Common
          if (item == m_impl->m_counter.end())
          {  continue; }
          
-         if (!item->second->exceedsLimit(match->getRule().getLimit()))
+         if (boost::rational<int>(1,1) > item->second->exceedsLimit(match->getRule().getLimit()))
          {  matches.erase(it); }
       }
       return std::move(matches);
