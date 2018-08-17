@@ -16,7 +16,7 @@ struct CInfluxAdapter
    ~CInfluxAdapter();
    
    void insertActive(API::IMatch::SetType const& active);
-   void insertExceeding(API::IMatch::SetType const& exceeding);
+   void insertExceeding(API::IExceedingMatch::SetType const& exceeding);
    
    void ping();
    

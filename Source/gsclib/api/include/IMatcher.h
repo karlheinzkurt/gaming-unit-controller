@@ -9,6 +9,7 @@
 #include <iosfwd> ///< fwd only
 
 #include <boost/property_tree/ptree_fwd.hpp> ///< fwd only
+#include <boost/rational.hpp>
 
 namespace GSC
 {
@@ -18,11 +19,11 @@ namespace API
    {
       struct MatchLess
       {
-         bool operator()(std::unique_ptr<IMatch> const& a, std::unique_ptr<IMatch> const& b) const
+         bool operator()(std::shared_ptr<IMatch> const& a, std::shared_ptr<IMatch> const& b) const
          {  return a->getName() < b->getName(); }
       };
       
-      typedef std::set<std::unique_ptr<IMatch>, MatchLess> SetType;
+      typedef std::set<std::shared_ptr<IMatch>, MatchLess> SetType;
       
       virtual ~IMatch() = default;
       
@@ -35,9 +36,17 @@ namespace API
       virtual Infrastructure::API::IProcess::SetType const& getProcesses() const = 0;
    };
    
+   struct IExceedingMatch : public IMatch
+   {
+      typedef std::set<std::shared_ptr<IExceedingMatch>, MatchLess> SetType;
+      
+      virtual boost::rational<int> getExceedingRatio() const = 0;
+   };
+   
    std::ostream& operator<<(std::ostream& os, IMatch const& match);
    
    bool operator<(IMatch const&, IMatch const&);
+   bool operator<(IExceedingMatch const&, IExceedingMatch const&);
          
    struct IMatcher
    {

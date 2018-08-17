@@ -85,20 +85,43 @@ namespace Common
       }
    }
    
-   API::IMatch::SetType Statistics::filterExceeding(API::IMatch::SetType&& matches)
-   {      
-      while (!matches.empty())
+   struct CExceedingMatch : API::IExceedingMatch
+   {
+      CExceedingMatch(std::shared_ptr<API::IMatch> m, boost::rational<int> ratio) : m_match(std::move(m)), m_ratio(ratio) {}
+      
+      virtual std::string getName() const override { return m_match->getName(); }
+      
+      virtual std::string toString() const override 
+      { 
+         std::ostringstream os;
+         os << m_match->toString() << ", ratio: " << getExceedingRatio();
+         return os.str(); 
+      }
+      
+      virtual API::IMatchingRule const& getRule() const override { return m_match->getRule(); }
+      
+      virtual Infrastructure::API::IProcess::SetType const& getProcesses() const override { return m_match->getProcesses(); }
+      
+      virtual boost::rational<int> getExceedingRatio() const override { return m_ratio; }
+      
+      std::shared_ptr<API::IMatch> m_match;
+      boost::rational<int> m_ratio;
+   };
+   
+   API::IExceedingMatch::SetType Statistics::filterExceeding(API::IMatch::SetType&& matches)
+   {
+      API::IExceedingMatch::SetType result;
+      for (auto match : matches)
       {
-         auto it = matches.begin();
-         auto const& match(*it);
          auto item(m_impl->m_counter.find(match->getName()));
          if (item == m_impl->m_counter.end())
          {  continue; }
          
-         if (boost::rational<int>(1,1) > item->second->exceedsLimit(match->getRule().getLimit()))
-         {  matches.erase(it); }
+         auto const ratio(item->second->exceedsLimit(match->getRule().getLimit()));
+         if (boost::rational<int>(1,1) < ratio)
+         {  result.emplace(std::make_unique<CExceedingMatch>(match, ratio)); }
       }
-      return std::move(matches);
+      return result;
    }
    
    void Statistics::save() const

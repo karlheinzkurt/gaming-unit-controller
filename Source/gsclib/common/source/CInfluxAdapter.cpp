@@ -93,64 +93,20 @@ void CInfluxAdapter::insertActive(API::IMatch::SetType const& active)
    m_impl->write(os.str()).wait();
 }
 
-void CInfluxAdapter::insertExceeding(API::IMatch::SetType const& exceeding)
+void CInfluxAdapter::insertExceeding(API::IExceedingMatch::SetType const& exceeding)
 {
    if (exceeding.empty()) return;
    
    std::ostringstream os;
-   for (auto const& e : exceeding) { os << "exceeding " << e->getName() << "=1.0\n"; }
+   for (auto const& e : exceeding) 
+   { 
+      os << "exceeding " << e->getName() << "=" << boost::rational_cast<float>(e->getExceedingRatio()) 
+         << "\n"; 
+   }
    m_impl->write(os.str()).wait();
 }
 
 void CInfluxAdapter::ping() 
 {  m_impl->ping().wait(); }
 
-   /*std::random_device rd;
-   std::mt19937 mt(rd());
-   std::uniform_real_distribution<double> dist(0., 10.);
-   std::mutex mutex;
-   pplx::cancellation_token_source cancelationOption;
-   
-   std::queue<pplx::task<web::http::http_response>> tasks;
-   
-   for (unsigned int i{0}; i < 10000; ++i)
-   {
-      std::ostringstream os;
-      os << "minecraft,active=true value=" << dist(mt);
-      utility::string_t const message(os.str());
-      web::http::http_request request(web::http::methods::POST);
-      request.set_request_uri(web::uri_builder("/write").append_query("db", "gsc")).to_string());
-      request.set_body(message);
-      
-      tasks.emplace(m_impl->m_client.request(request, cancelationOption.get_token()).then([i, &mutex](auto result)
-      {
-         //std::unique_lock<std::mutex> lock(mutex);
-         std::cout << i << '\n';
-         return result;
-      }));
-   }
-   while (!tasks.empty())
-   {
-      try 
-      {
-         tasks.front().wait();
-         tasks.pop();
-      }
-      catch (std::exception const& e)
-      {  
-         tasks.pop();
-         std::cerr << e.what() << '\n'; 
-      }
-   }*/
-   
-   /*
-   .then([](web::http::http_response response)
-   {
-      if (response.status_code() != web::http::status_codes::OK)
-      {
-        std::cerr << response.status_code();
-      }
-   })
-   .wait();
-   */
 }}
