@@ -1,6 +1,7 @@
 
 #include "../include/CStatistics.h"
 #include "../include/CUnitCounterFactory.h"
+#include "../include/CMatcher.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -66,8 +67,9 @@ namespace Common
       {  LOG4CXX_ERROR( m_impl->m_logger, e.what() ); }
    }
    
-   void Statistics::updateCounters(API::IMatch::SetType const& matches)
+   API::IRatedMatch::SetType Statistics::rate(API::IMatch::SetType const& matches)
    {
+      API::IRatedMatch::SetType result;
       for (auto const& match : matches)
       {
          auto& counter( m_impl->m_counter[match->getName()] );
@@ -82,44 +84,9 @@ namespace Common
          }
       
          counter->doUpdate(m_impl->m_now);
-      }
-   }
-   
-   struct CExceedingMatch : API::IExceedingMatch
-   {
-      CExceedingMatch(std::shared_ptr<API::IMatch> m, boost::rational<int> ratio) : m_match(std::move(m)), m_ratio(ratio) {}
-      
-      virtual std::string getName() const override { return m_match->getName(); }
-      
-      virtual std::string toString() const override 
-      { 
-         std::ostringstream os;
-         os << m_match->toString() << ", ratio: " << getExceedingRatio();
-         return os.str(); 
-      }
-      
-      virtual API::IMatchingRule const& getRule() const override { return m_match->getRule(); }
-      
-      virtual Infrastructure::API::IProcess::SetType const& getProcesses() const override { return m_match->getProcesses(); }
-      
-      virtual boost::rational<int> getExceedingRatio() const override { return m_ratio; }
-      
-      std::shared_ptr<API::IMatch> m_match;
-      boost::rational<int> m_ratio;
-   };
-   
-   API::IExceedingMatch::SetType Statistics::filterExceeding(API::IMatch::SetType&& matches)
-   {
-      API::IExceedingMatch::SetType result;
-      for (auto match : matches)
-      {
-         auto item(m_impl->m_counter.find(match->getName()));
-         if (item == m_impl->m_counter.end())
-         {  continue; }
-         
-         auto const ratio(item->second->exceedsLimit(match->getRule().getLimit()));
-         if (boost::rational<int>(1,1) < ratio)
-         {  result.emplace(std::make_unique<CExceedingMatch>(match, ratio)); }
+         result.emplace(std::make_unique<CRatedMatch>(
+             *match
+            ,counter->exceedsLimit(match->getRule().getLimit())));
       }
       return result;
    }

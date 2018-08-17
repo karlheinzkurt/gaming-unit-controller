@@ -10,44 +10,54 @@ namespace GSC
 {
 namespace Common
 {  
-   struct CMatch : API::IMatch
-   {     
-      CMatch(std::string const& name, API::IMatchingRule const& rule, std::shared_ptr<Infrastructure::API::IProcess> const& process) 
-         :m_name(name)
-         ,m_rule(rule)
-         ,m_processes({process})
-      {}
-      
-      CMatch(std::string const& name, API::IMatchingRule const& rule, Infrastructure::API::IProcess::SetType const& processes)
-         :m_name(name)
-         ,m_rule(rule)
-         ,m_processes(std::move(processes))
-      {}
-      
-      virtual std::string getName() const override
-      {  return m_name; }
-      
-      virtual std::string toString() const override
-      {  
-         std::ostringstream os;
-         os << getName() << ":" << std::accumulate(m_processes.begin(), m_processes.end(), std::string(), [](std::string v, std::shared_ptr<Infrastructure::API::IProcess> const& process)
-         {
-            return v + " " + std::to_string(process->getProcessId());
-         });
-         return os.str();
-      }
-      
-      virtual API::IMatchingRule const& getRule() const override
-      {  return m_rule; }
-      
-      virtual Infrastructure::API::IProcess::SetType const& getProcesses() const override
-      {  return m_processes; }
-      
-   private:   
-      std::string m_name;
-      API::IMatchingRule const& m_rule;
-      Infrastructure::API::IProcess::SetType m_processes;
-   };
+   CMatch::CMatch(std::string const& name, API::IMatchingRule const& rule, std::shared_ptr<Infrastructure::API::IProcess> const& process) 
+      :m_name(name)
+      ,m_rule(rule)
+      ,m_processes({process})
+   {}
+   
+   CMatch::CMatch(std::string const& name, API::IMatchingRule const& rule, Infrastructure::API::IProcess::SetType const& processes)
+      :m_name(name)
+      ,m_rule(rule)
+      ,m_processes(processes)
+   {}
+   
+   CMatch::CMatch(API::IMatch const& other)
+      :m_name(other.getName())
+      ,m_rule(other.getRule())
+      ,m_processes(other.getProcesses())
+   {}
+   
+   std::string CMatch::getName() const
+   {  return m_name; }
+   
+   std::string CMatch::toString() const
+   {  
+      std::ostringstream os;
+      os << getName() << ":" << std::accumulate(m_processes.begin(), m_processes.end(), std::string(), [](std::string v, std::shared_ptr<Infrastructure::API::IProcess> const& process)
+      {  return v + " " + std::to_string(process->getProcessId()); });
+      return os.str();
+   }
+   
+   API::IMatchingRule const& CMatch::getRule() const
+   {  return m_rule; }
+   
+   Infrastructure::API::IProcess::SetType const& CMatch::getProcesses() const
+   {  return m_processes; }
+   
+   CRatedMatch::CRatedMatch(API::IMatch const& m, boost::rational<int> ratio) 
+      :CMatch(m)
+      ,m_ratio(ratio) 
+   {}
+   
+   std::string CRatedMatch::toString() const
+   { 
+      std::ostringstream os;
+      os << CMatch::toString() << ", ratio: " << getRatio();
+      return os.str(); 
+   }
+   
+   boost::rational<int> CRatedMatch::getRatio() const { return m_ratio; }
    
    CMatcher::CMatcher() :
       m_logger( log4cxx::Logger::getLogger( "GSC.Common.CMatcher" ) )

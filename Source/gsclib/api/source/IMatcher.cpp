@@ -14,7 +14,7 @@ namespace API
    bool operator<( IMatch const& a, IMatch const& b )
    {  return a.getName() < b.getName(); }
    
-   bool operator<( IExceedingMatch const& a, IExceedingMatch const& b )
+   bool operator<( IRatedMatch const& a, IRatedMatch const& b )
    {  return (IMatch const&)a < (IMatch const&)b; }
       
 }}

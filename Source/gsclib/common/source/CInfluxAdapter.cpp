@@ -85,24 +85,20 @@ CInfluxAdapter::CInfluxAdapter() : m_impl(std::make_unique<Impl>(web::uri_builde
 
 CInfluxAdapter::~CInfluxAdapter() = default;
 
-void CInfluxAdapter::insertActive(API::IMatch::SetType const& active)
-{  
+void CInfluxAdapter::insert(API::IRatedMatch::SetType const& rated)
+{
    std::ostringstream os;
    os << "active system=1.0\n";
-   for (auto const& a : active) { os << "active " << a->getName() << "=1.0\n"; }
-   m_impl->write(os.str()).wait();
-}
-
-void CInfluxAdapter::insertExceeding(API::IExceedingMatch::SetType const& exceeding)
-{
-   if (exceeding.empty()) return;
    
-   std::ostringstream os;
-   for (auto const& e : exceeding) 
-   { 
-      os << "exceeding " << e->getName() << "=" << boost::rational_cast<float>(e->getExceedingRatio()) 
-         << "\n"; 
-   }
+   if (rated.empty())
+   {
+      m_impl->write(os.str()).wait();
+      return;
+   }  
+   
+   for (auto const& e : rated) 
+   {  os << "active " << e->getName() << "=" << boost::rational_cast<float>(e->getRatio()) << "\n"; }
+   
    m_impl->write(os.str()).wait();
 }
 

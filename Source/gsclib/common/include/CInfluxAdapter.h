@@ -15,9 +15,7 @@ struct CInfluxAdapter
    CInfluxAdapter& operator=(CInfluxAdapter&&) = delete;
    ~CInfluxAdapter();
    
-   void insertActive(API::IMatch::SetType const& active);
-   void insertExceeding(API::IExceedingMatch::SetType const& exceeding);
-   
+   void insert(API::IRatedMatch::SetType const&);   
    void ping();
    
 private:

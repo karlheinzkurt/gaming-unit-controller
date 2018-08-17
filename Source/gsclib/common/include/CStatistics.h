@@ -19,8 +19,7 @@ namespace Common
       
       ~Statistics(); ///< keep to get private impl deleted properly
       
-      void updateCounters(API::IMatch::SetType const& matches);
-      API::IExceedingMatch::SetType filterExceeding(API::IMatch::SetType&& matches);
+      API::IRatedMatch::SetType rate(API::IMatch::SetType const& matches);
       
    private:
       void load();
