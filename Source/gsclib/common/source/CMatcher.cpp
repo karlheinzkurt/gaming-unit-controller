@@ -3,8 +3,11 @@
 #include "../include/CMatchingRule.h"
 
 #include <boost/property_tree/ptree.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 
 #include <sstream>
+#include <numeric>
 
 namespace GSC
 {
@@ -34,8 +37,9 @@ namespace Common
    std::string CMatch::toString() const
    {  
       std::ostringstream os;
-      os << getName() << ":" << std::accumulate(m_processes.begin(), m_processes.end(), std::string(), [](std::string v, std::shared_ptr<Infrastructure::API::IProcess> const& process)
-      {  return v + " " + std::to_string(process->getProcessId()); });
+      os << getName() << ": pids: [" 
+         << boost::algorithm::join(m_processes | boost::adaptors::transformed([](auto const& p){ return std::to_string(p->getProcessId()); }), ", ") 
+         << "]";
       return os.str();
    }
    

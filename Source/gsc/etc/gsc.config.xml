@@ -13,7 +13,7 @@
     </rule>
     <rule>
       <name>firefox</name>
-      <limit>600</limit>
+      <limit>3600</limit>
       <whitelist>
         <entry>.*firefox.*</entry>
       </whitelist>
