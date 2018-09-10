@@ -13,9 +13,19 @@
     </rule>
     <rule>
       <name>firefox</name>
-      <limit>3600</limit>
+      <limit>6200</limit>
       <whitelist>
-        <entry>.*firefox.*</entry>
+        <entry>.*?[/]firefox .*</entry>
+      </whitelist>
+      <blacklist>
+        <entry></entry>
+      </blacklist>
+    </rule>
+    <rule>
+      <name>spotify</name>
+      <limit>6200</limit>
+      <whitelist>
+        <entry>.*?[/]spotify .*</entry>
       </whitelist>
       <blacklist>
         <entry></entry>
