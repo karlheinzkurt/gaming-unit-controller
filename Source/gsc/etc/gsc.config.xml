@@ -31,6 +31,16 @@
         <entry></entry>
       </blacklist>
     </rule>
+    <rule>
+      <name>chromium</name>
+      <limit>6200</limit>
+      <whitelist>
+        <entry>.*?[/]chromium-browser .*</entry>
+      </whitelist>
+      <blacklist>
+        <entry></entry>
+      </blacklist>
+    </rule>
   </rules>
 </matcher>
 
