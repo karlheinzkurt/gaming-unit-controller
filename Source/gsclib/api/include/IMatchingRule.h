@@ -14,7 +14,14 @@ namespace GSC
 namespace API
 {   
    struct IMatchingRule
-   {     
+   {
+      enum class Implication
+      {
+          None
+         ,Warn
+         ,Kill
+      };
+     
       struct MatchingRuleLess
       {
          bool operator()(std::unique_ptr<IMatchingRule> const& a, std::unique_ptr<IMatchingRule> const& b) const
@@ -33,6 +40,8 @@ namespace API
       
       virtual std::chrono::seconds getLimit() const = 0;
       
+      virtual Implication getImplication() const = 0;
+      
       virtual std::list<std::string> const& getWhitelist() const = 0;
       
       virtual std::list<std::string> const& getBlacklist() const = 0;
@@ -45,4 +54,7 @@ namespace API
    bool operator==(IMatchingRule::SetType const& a, IMatchingRule::SetType const& b);
    bool operator!=(IMatchingRule::SetType const& a, IMatchingRule::SetType const& b);
    std::ostream& operator<<(std::ostream& os, IMatchingRule const& rule);
+   
+   std::ostream& operator<<(std::ostream& os, IMatchingRule::Implication const& implication);
+   std::istream& operator>>(std::istream& is, IMatchingRule::Implication& implication);
 }}

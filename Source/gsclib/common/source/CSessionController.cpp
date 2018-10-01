@@ -44,6 +44,7 @@ namespace Common
          m_matcher->add(std::make_unique<CMatchingRule>(
              "example"
             ,std::chrono::hours(1)
+            ,CMatchingRule::Implication::Warn
             ,std::list<std::string>{".*match.*", ".*or_match.*"}
             ,std::list<std::string>{".*filter_out.*", ".*filter_also_out.*", ".*filter_out_as_well.*"}));
          auto const examplePath = boost::filesystem::change_extension(m_configurationFilePath, "example.xml");
@@ -79,13 +80,9 @@ namespace Common
          LOG4CXX_INFO( m_logger, "Matching processes found: " << std::accumulate( 
              matches.begin(), matches.end(), 0
             ,[]( int v, auto const& match ){ return v + match->getProcesses().size(); } ) );
-         
-         LOG4CXX_INFO( m_logger, "Matching applications found: " << matches.size() );
-         for (auto& match : matches) { LOG4CXX_INFO(m_logger, *match); }
 
          auto const ratedMatches(Statistics(m_logger, counterFilePath).rate(matches));
-         
-         LOG4CXX_INFO( m_logger, "Exceeding applications found: " << ratedMatches.size() );
+         LOG4CXX_INFO( m_logger, "Matching applications found: " << ratedMatches.size() );
          for (auto& match : ratedMatches) { LOG4CXX_INFO( m_logger, *match ); }    
          
          if (!influxAdapter)
@@ -95,6 +92,30 @@ namespace Common
             {  LOG4CXX_WARN(m_logger, "Failed to instantiate CInfluxAdapter with: " << e.what()); }
          }
          if (influxAdapter) { influxAdapter->insert(ratedMatches); }
+         
+         for (auto& match : ratedMatches) 
+         {
+            if (match->getRatio() > boost::rational<int>(1))
+            {
+               auto const implication(match->getRule().getImplication());
+               if (implication == API::IMatchingRule::Implication::Kill)
+               {
+                  LOG4CXX_INFO(m_logger, "Terminating exceeding application: " << *match);
+                  auto const& processes(match->getProcesses());
+                  for (auto const& process : processes)
+                  {
+                     if (process->terminateAndWait(std::chrono::seconds(5)))
+                     {
+                        LOG4CXX_INFO(m_logger, "Terminated exceeding process: " << *process);
+                        continue;
+                     }
+                     
+                     process->killAndWait(std::chrono::seconds(5));
+                     LOG4CXX_INFO(m_logger, "Killed exceeding process: " << *process);
+                  }
+               }
+            }
+         }
       });
    }
    

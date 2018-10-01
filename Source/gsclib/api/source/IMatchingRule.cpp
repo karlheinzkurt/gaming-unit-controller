@@ -2,6 +2,8 @@
 #include "../include/IMatchingRule.h"
 
 #include <boost/range/combine.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/bimap.hpp>
 
 namespace GSC { namespace API {
      
@@ -9,8 +11,10 @@ namespace GSC { namespace API {
    {
       auto const al(a.getLimit());
       auto const bl(b.getLimit());
-      return   std::tie(a.getName(), al, a.getWhitelist(), a.getBlacklist()) 
-            == std::tie(b.getName(), bl, b.getWhitelist(), b.getBlacklist());
+      auto const ai(a.getImplication());
+      auto const bi(b.getImplication());
+      return   std::tie(a.getName(), al, ai, a.getWhitelist(), a.getBlacklist()) 
+            == std::tie(b.getName(), bl, bi, b.getWhitelist(), b.getBlacklist());
    }
    
    bool operator!=(IMatchingRule const& a, IMatchingRule const& b)
@@ -28,5 +32,26 @@ namespace GSC { namespace API {
    
    std::ostream& operator<<( std::ostream& os, IMatchingRule const& rule )
    {  return os << rule.toString(); }
+   
+   typedef boost::bimap<IMatchingRule::Implication, std::string> ImplicationMapType;
+   static ImplicationMapType const implicationMap([]
+   {
+      ImplicationMapType m;
+      m.insert(ImplicationMapType::value_type(IMatchingRule::Implication::None, "none"));
+      m.insert(ImplicationMapType::value_type(IMatchingRule::Implication::Warn, "warn"));
+      m.insert(ImplicationMapType::value_type(IMatchingRule::Implication::Kill, "kill"));
+      return m;
+   }());
+   
+   std::ostream& operator<<(std::ostream& os, IMatchingRule::Implication const& implication)
+   {  return os << implicationMap.left.at(implication); }
+   
+   std::istream& operator>>(std::istream& is, IMatchingRule::Implication& implication)
+   {  
+      std::string s;
+      is >> s;
+      implication = implicationMap.right.at(boost::to_lower_copy(boost::trim_copy(s)));
+      return is;
+   }
    
 }}

@@ -20,7 +20,7 @@ namespace Common
    {     
       typedef std::set<CMatchingRule> SetType;
       
-      CMatchingRule(std::string name, std::chrono::seconds limit, std::list<std::string> whiteList, std::list<std::string> blackList);
+      CMatchingRule(std::string name, std::chrono::seconds limit, Implication implication, std::list<std::string> whiteList, std::list<std::string> blackList);
       
       virtual ~CMatchingRule(); ///< Keep to get forward declared type deleted properly
       
@@ -38,6 +38,8 @@ namespace Common
       
       virtual std::chrono::seconds getLimit() const override;
       
+      virtual Implication getImplication() const override;
+      
       virtual std::list<std::string> const& getWhitelist() const override;
       
       virtual std::list<std::string> const& getBlacklist() const override;
@@ -49,6 +51,7 @@ namespace Common
    private:
       std::string m_name;
       std::chrono::seconds m_limit;
+      Implication m_implication;
       struct List;
       std::unique_ptr<List> m_whitelist, m_blacklist;
    };

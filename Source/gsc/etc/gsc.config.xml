@@ -3,7 +3,8 @@
   <rules>
     <rule>
       <name>minecraft</name>
-      <limit>3600</limit>
+      <limit>5400</limit>
+      <implication>kill</implication>
       <whitelist>
         <entry>.*java.*[-]jar.*?minecraft[.]jar.*</entry>
       </whitelist>

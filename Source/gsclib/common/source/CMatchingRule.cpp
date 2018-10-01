@@ -23,9 +23,10 @@ namespace Common
       std::regex m_expression;
    };
       
-   CMatchingRule::CMatchingRule(std::string name, std::chrono::seconds limit, std::list<std::string> whitelist, std::list<std::string> blacklist) 
+   CMatchingRule::CMatchingRule(std::string name, std::chrono::seconds limit, Implication implication, std::list<std::string> whitelist, std::list<std::string> blacklist) 
       :m_name(name)
       ,m_limit(limit)
+      ,m_implication(implication)
       ,m_whitelist(std::make_unique<List>(whitelist))
       ,m_blacklist(std::make_unique<List>(blacklist))
    {}
@@ -47,8 +48,9 @@ namespace Common
    std::string CMatchingRule::toString() const
    {
       std::ostringstream os;
-      os << m_name
-         << " (" << m_whitelist->m_string << "), "
+      os << m_name << ", "
+         << m_implication << ", "
+         << "(" << m_whitelist->m_string << "), "
          << "!(" << m_blacklist->m_string << ")";
       return os.str();
    }
@@ -58,6 +60,9 @@ namespace Common
    
    std::chrono::seconds CMatchingRule::getLimit() const
    {  return m_limit; }
+   
+   CMatchingRule::Implication CMatchingRule::getImplication() const
+   {  return m_implication; } 
    
    std::list<std::string> const& CMatchingRule::getWhitelist() const
    {  return m_whitelist->m_list; }
@@ -70,6 +75,7 @@ namespace Common
       boost::property_tree::ptree ptRule;
       ptRule.put("name", getName());
       ptRule.put("limit", getLimit().count());
+      ptRule.put("implication", m_implication);
       {
          boost::property_tree::ptree ptWhitelist;
          for (auto const& e : getWhitelist())
@@ -93,13 +99,14 @@ namespace Common
    {
       auto name = ptRule.get<std::string>("name");
       std::chrono::seconds limit(ptRule.get("limit", 0));
+      Implication implication(ptRule.get("implication", Implication::Warn));
       std::list<std::string> whitelist;
       for (auto const& ptWhitelist : ptRule.get_child( "whitelist" ))
       {  whitelist.emplace_back(ptWhitelist.second.get< std::string >("")); }
       std::list<std::string> blacklist;
       for (auto const& ptBlacklist : ptRule.get_child( "blacklist" ))
       {  blacklist.emplace_back(ptBlacklist.second.get< std::string >("")); }
-      return std::make_unique<CMatchingRule>(name, limit, whitelist, blacklist);
+      return std::make_unique<CMatchingRule>(name, limit, implication, whitelist, blacklist);
    }
    
 }}

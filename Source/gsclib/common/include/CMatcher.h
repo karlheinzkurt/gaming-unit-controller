@@ -30,7 +30,7 @@ namespace Common
       Infrastructure::API::IProcess::SetType m_processes;
    };
    
-   struct CRatedMatch : API::IRatedMatch, CMatch
+   struct CRatedMatch : API::IRatedMatch, public CMatch
    {
       CRatedMatch(API::IMatch const& m, boost::rational<int> ratio);
       
