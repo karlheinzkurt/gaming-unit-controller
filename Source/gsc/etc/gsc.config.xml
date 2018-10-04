@@ -6,7 +6,7 @@
       <limit>5400</limit>
       <implication>kill</implication>
       <whitelist>
-        <entry>.*java.*[-]jar.*?minecraft[.]jar.*</entry>
+        <entry>.*?[/]java .*?minecraft([.]client)?[.]jar.*</entry>
       </whitelist>
       <blacklist>
         <entry></entry>
