@@ -6,7 +6,7 @@
       <limit>5400</limit>
       <implication>kill</implication>
       <whitelist>
-        <entry>.*?[/]java .*?minecraft([.]client)?[.]jar.*</entry>
+        <entry>(.*[/])?java .*?minecraft([.]client)?[.]jar.*</entry>
       </whitelist>
       <blacklist>
         <entry></entry>
@@ -16,7 +16,7 @@
       <name>firefox</name>
       <limit>6200</limit>
       <whitelist>
-        <entry>.*?[/]firefox .*</entry>
+        <entry>(.*[/])?firefox .*</entry>
       </whitelist>
       <blacklist>
         <entry></entry>
@@ -26,7 +26,7 @@
       <name>spotify</name>
       <limit>6200</limit>
       <whitelist>
-        <entry>.*?[/]spotify .*</entry>
+        <entry>(.*[/])?spotify .*</entry>
       </whitelist>
       <blacklist>
         <entry></entry>
@@ -36,7 +36,7 @@
       <name>chromium</name>
       <limit>6200</limit>
       <whitelist>
-        <entry>.*?[/]chromium-browser .*</entry>
+        <entry>(.*[/])?chromium-browser .*</entry>
       </whitelist>
       <blacklist>
         <entry></entry>
