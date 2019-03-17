@@ -16,6 +16,10 @@ namespace GSC
 {
 namespace Common
 { 
+   /** \todo Rename to zockZilla 
+    */
+   
+   
    boost::filesystem::path CSessionController::getDefaultCounterFilePath()
    {  return boost::filesystem::path("gsc.counts.xml"); }
    
