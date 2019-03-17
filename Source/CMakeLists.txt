@@ -25,19 +25,22 @@ add_compile_options(-Werror)
 
 include_directories(${SOURCE_ROOT})
 
-set(Boost_USE_STATIC_LIBS ON) 
-set(Boost_USE_MULTITHREADED ON)  
-set(Boost_USE_STATIC_RUNTIME OFF) 
-FIND_PACKAGE(Boost 1.45.0 REQUIRED COMPONENTS system filesystem program_options date_time)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
+
+# set(Boost_USE_STATIC_LIBS ON) 
+# set(Boost_USE_MULTITHREADED ON)  
+# set(Boost_USE_STATIC_RUNTIME OFF) 
+# FIND_PACKAGE(Boost 1.45.0 REQUIRED COMPONENTS system filesystem program_options date_time)
 
 find_library(Log4cxx REQUIRED log4cxx)
 SET(Log4cxx_LIBRARIES log4cxx) # There is no findpackage
 
-find_library(cpprestsdk REQUIRED cpprest)
-SET(cpprest_LIBRARIES ssl crypto cpprest)
+# find_library(cpprestsdk REQUIRED cpprest)
+# SET(cpprest_LIBRARIES ssl crypto cpprest)
 
-FIND_PACKAGE(GTest 1.8.0 REQUIRED)
-SET(GMOCK_ALL_LIBRARIES gmock) # Not contained in GTest
+# FIND_PACKAGE(GTest 1.8.0 REQUIRED)
+# SET(GMOCK_ALL_LIBRARIES gmock) # Not contained in GTest
 
 add_subdirectory(gsclib)
 add_subdirectory(gsc)

@@ -22,7 +22,7 @@ def createStage(String name, boolean condition, Closure body) {
    }
 }
 
-node {
+node {  
    properties([
       parameters([
          choice(
@@ -38,9 +38,10 @@ node {
    
    try {
       createStage('Build', true) {
-         sh """
+         sh """         
             mkdir -p build
             cd build
+            \${CONAN_HOME}/conan install --build missing ../
             cmake -DCMAKE_BUILD_TYPE=${buildConfiguration} ../Source
             cmake --build .
          """
