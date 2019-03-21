@@ -50,19 +50,19 @@ node {
       createStage('Test', true) {
          try {
             sh """
-               cd bin               
+               cd build/bin               
                valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=gsclib.valgrind.result.xml ./gsclib.test --gtest_output=xml:gsclib.test.result.xml
             """
             
             xunit( thresholds: [ skipped(    failureThreshold: '0')
                                 ,failed(     failureThreshold: '0')]
-                  ,tools:      [GoogleTest(  pattern: 'bin/gsclib.test.result.xml')])
+                  ,tools:      [GoogleTest(  pattern: 'build/bin/gsclib.test.result.xml')])
             
             publishValgrind(
-               pattern: 'bin/gsclib.valgrind.result.xml'
+               pattern: 'build/bin/gsclib.valgrind.result.xml'
             )
          } finally {
-            archiveArtifacts artifacts: 'bin/gsclib.*.result.xml', flattenDirectories: true
+            archiveArtifacts artifacts: 'build/bin/gsclib.*.result.xml', flattenDirectories: true
          }
       }
          
