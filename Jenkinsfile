@@ -22,7 +22,7 @@ def createStage(String name, boolean condition, Closure body) {
    }
 }
 
-node {
+node {  
    properties([
       parameters([
          choice(
@@ -38,9 +38,10 @@ node {
    
    try {
       createStage('Build', true) {
-         sh """
+         sh """         
             mkdir -p build
             cd build
+            \${CONAN_HOME}/conan install --build missing ../
             cmake -DCMAKE_BUILD_TYPE=${buildConfiguration} ../Source
             cmake --build .
          """
@@ -49,19 +50,19 @@ node {
       createStage('Test', true) {
          try {
             sh """
-               cd bin               
+               cd build/bin               
                valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=gsclib.valgrind.result.xml ./gsclib.test --gtest_output=xml:gsclib.test.result.xml
             """
             
             xunit( thresholds: [ skipped(    failureThreshold: '0')
                                 ,failed(     failureThreshold: '0')]
-                  ,tools:      [GoogleTest(  pattern: 'bin/gsclib.test.result.xml')])
+                  ,tools:      [GoogleTest(  pattern: 'build/bin/gsclib.test.result.xml')])
             
             publishValgrind(
-               pattern: 'bin/gsclib.valgrind.result.xml'
+               pattern: 'build/bin/gsclib.valgrind.result.xml'
             )
          } finally {
-            archiveArtifacts artifacts: 'bin/gsclib.*.result.xml', flattenDirectories: true
+            archiveArtifacts artifacts: 'build/bin/gsclib.*.result.xml', flattenDirectories: true
          }
       }
          
