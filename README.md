@@ -1,27 +1,19 @@
-# gaming-unit-controller
-Tool to monitor runtime of processes (games) and to terminate them when 
-defined limits get exceeded.
+# zockZilla
+Daemon to monitor runtime of processes. When limits get exceeded, 
+processes and childs will be terminated.
 
 # Requirements
-* cmake version   > 2.8.1  
-* gmock/gtest will be downloaded and build automatically
-* boost version   > 1.58.0 (maybe earlier versions, but not tested)
-* log4cxx version > 0.10.0 (maybe earlier versions, but not tested)
+* cmake version   > 3.1.2  
+* conan 
+* log4cxx version > 0.10.0 (unfortunately not available via conan)
 
 # Build Instructions
 Binaries are put to "bin" folder.
-Steps to generate makefiles/solutions/workspaces and build the projects:
 ```
 mkdir build
-pushd build
-   cmake ../Source
-popd
-cmake --build build/... --config Debug
-```
-
-Run the following command to get a list of generators available 
-for your platform. Place matching generator argument when calling 
-cmake in line 3 above.
-```
-cmake -G
+cd build
+conan install --build missing ../
+cmake -DCMAKE_BUILD_TYPE=Release ../Source
+cmake --build .
+cpack
 ```
