@@ -8,4 +8,5 @@ target_link_libraries(${PROJECT_NAME}
    gsclib.infrastructure.mock 
    gsclib.api 
    gsclib.common 
+   CONAN_PKG::gtest
 )
