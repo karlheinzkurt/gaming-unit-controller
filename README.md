@@ -1,13 +1,18 @@
 # zockZilla
 Daemon to monitor runtime of processes. When limits get exceeded, 
-processes and childs will be terminated.
+processes and childs will be terminated. 
+
+Collected information can be written into InfluxDB via cpprestsdk to be
+able to use Grafana to create nice dashboards and to send notification e.g.
 
 # Requirements
 * c++14 enabled compiler
 * cmake (>= 3.1.2)
-* log4cxx (>= 0.10.0)
+* log4cxx (>= 0.10.0, there is no conan package)
 * python3 as a requirement for conan
 * conan package manager (See: https://docs.conan.io/en/latest/installation.html)
+
+(boost, cpprestsdk, gtest gets installed via conan)
 
 ```
 sudo apt install gcc make cmake python3 liblog4cxx-dev ... maybe something more
