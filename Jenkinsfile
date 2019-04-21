@@ -41,8 +41,8 @@ node {
          sh """         
             mkdir -p build
             cd build
-            \${CONAN_HOME}/conan install --build missing ../
-            cmake -DCMAKE_BUILD_TYPE=${buildConfiguration} ../Source
+            conan install --build missing ../
+            cmake -DCMAKE_BUILD_TYPE=${buildConfiguration} ../source
             cmake --build .
          """
       }
