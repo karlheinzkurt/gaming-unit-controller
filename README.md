@@ -3,7 +3,7 @@ Daemon to monitor runtime of processes. When limits get exceeded,
 processes and childs will be terminated.
 
 # Requirements
-* c++17 enabled compiler
+* c++14 enabled compiler
 * cmake (>= 3.1.2)
 * log4cxx (>= 0.10.0)
 * python3 as a requirement for conan
@@ -38,6 +38,8 @@ popd
 
 # Installation instructions for Debian like systems
 ```
+pushd build
+
 # Create package and check content
 #
 cpack
@@ -45,7 +47,9 @@ dpkg --contents gsc*.deb
 
 # Install package
 #
-sudo dpkg -i build/gsc*.deb
+sudo dpkg -i gsc*.deb
+
+popd
 
 # Enable and start daemon
 #

@@ -14,7 +14,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   MESSAGE(STATUS "Configure build for coverage analysis")
 ENDIF()
 
-add_compile_options(--std=c++17)
+add_compile_options(--std=c++14)
 add_compile_options(-Wall)
 add_compile_options(-Werror)
 
