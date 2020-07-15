@@ -1,3 +1,5 @@
+![build](https://github.com/karlheinzkurt/zock-zilla/workflows/build/badge.svg)
+
 # zockZilla
 Daemon to monitor runtime of processes. When limits get exceeded, 
 processes and childs will be terminated. 
