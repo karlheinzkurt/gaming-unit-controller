@@ -17,8 +17,8 @@ jobs:
     - name: Prepare tooling
       run: |
         sudo apt-get update
-        sudo apt-get -y install cmake make g++ liblog4cxx-dev python3-pip python3-setuptools
-        pip3 install wheel conan
+        sudo apt-get -y install cmake liblog4cxx-dev python3-pip python3-setuptools python3-wheel
+        pip3 install conan
         export PATH=$PATH:$HOME/.local/bin
         conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
         mkdir build
