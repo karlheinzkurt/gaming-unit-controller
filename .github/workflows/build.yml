@@ -17,8 +17,8 @@ jobs:
     - name: Prepare tooling
       run: |
         sudo apt-get update
-        sudo apt-get -y install cmake make g++ python3-pip
-        pip3 install wheel setuptools conan
+        sudo apt-get -y install cmake make g++ python3-pip python3-setuptools
+        pip3 install wheel conan
         export PATH=$PATH:`pwd`/.local/bin
         conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
         mkdir build
