@@ -19,13 +19,12 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install cmake make g++ python3-pip python3-setuptools
         pip3 install conan
-        export PATH=$HOME/.local/bin:$PATH
-        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+        .local/bin/conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
         mkdir build
         
     - name: Get dependencies
       working-directory: build      
-      run: conan install --build=missing ../
+      run: .local/bin/conan install --build=missing ../
       
     - name: Configure
       working-directory: build
