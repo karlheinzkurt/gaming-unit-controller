@@ -43,3 +43,8 @@ jobs:
     - name: Create Debian package
       working-directory: build
       run: cpack
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: build/*.deb
