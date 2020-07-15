@@ -9,7 +9,8 @@ target_link_libraries(${PROJECT_NAME}
    gsclib.infrastructure.api 
    gsclib.infrastructure.common 
    gsclib.common 
-   CONAN_PKG::boost_program_options
+   #   CONAN_PKG::boost_program_options
+   CONAN_PKG::boost
    ${Log4cxx_LIBRARIES}
 )
 

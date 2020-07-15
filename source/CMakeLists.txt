@@ -23,8 +23,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
+# set(Boost_USE_STATIC_LIBS ON)
+# find_package(Boost 1.72.0 REQUIRED program_options)
+
 find_library(Log4cxx REQUIRED log4cxx) # There is no conan package
-SET(Log4cxx_LIBRARIES log4cxx)         # There is no findpackage
+SET(Log4cxx_LIBRARIES log4cxx log4cxx) # There is no findpackage
 
 add_subdirectory(gsclib)
 add_subdirectory(gsc)
