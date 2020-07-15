@@ -1,0 +1,43 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Prepare tooling
+      run: |
+        apt-get update
+        apt-get --no-cache -y install cmake make g++ python3-pip
+        pip3 install conan
+        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+        mkdir build
+        
+    - name: Get dependencies
+      working-directory: build      
+      run: conan install --build=missing ../
+      
+    - name: Configure
+      working-directory: build
+      run: cmake -DCMAKE_BUILD_TYPE=Release ../
+      
+    - name: Build
+      working-directory: build
+      run: cmake --build . --config Release
+      
+    - name: Run unit tests
+      working-directory: build
+      run: ctest -V
+
+    - name: Create Debian package
+      working-directory: build
+      run: cpack
