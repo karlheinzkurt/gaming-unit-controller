@@ -17,7 +17,7 @@ jobs:
     - name: Prepare tooling
       run: |
         sudo apt-get update
-        sudo apt-get --no-cache -y install cmake make g++ python3-pip
+        sudo apt-get -y install cmake make g++ python3-pip
         pip3 install conan
         conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
         mkdir build
