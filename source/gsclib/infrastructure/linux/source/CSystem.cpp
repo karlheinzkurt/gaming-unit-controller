@@ -46,7 +46,7 @@ namespace Linux
 
          processes.emplace( std::make_unique< CProcess >( determineProcessId( entry.path() ) ) );
       } );
-      return std::move( processes );
+      return processes;
    }
    
    API::IProcess::SetType CSystem::getSignallableProcesses()
@@ -57,7 +57,7 @@ namespace Linux
          if ( process->isSignallable() )
          {  signallableProcesses.emplace( std::make_unique< CProcess >( process->getProcessId() ) ); }
       }
-      return std::move( signallableProcesses );
+      return signallableProcesses;
    }
    
    std::unique_ptr<API::ISignalHandler> CSystem::installSignalHandler(API::Signal signal, std::function<void(API::Signal)> function)

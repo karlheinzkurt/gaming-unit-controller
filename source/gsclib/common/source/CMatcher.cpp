@@ -98,7 +98,7 @@ namespace Common
       }
       API::IMatch::SetType results;
       for ( auto& tuple : temporary ) { results.emplace(std::make_unique<CMatch>(tuple.first->getName(), *tuple.first, tuple.second)); }
-      return std::move( results );
+      return results;
    }
 
    boost::property_tree::ptree CMatcher::serialize() const
@@ -106,7 +106,7 @@ namespace Common
       boost::property_tree::ptree pt;
       std::for_each(m_rules.begin(), m_rules.end(), [&](auto const& rule)
       {  pt.add_child( "rules.rule", rule->serialize()); });
-      return std::move(pt);
+      return pt;
    }
    
    std::unique_ptr<API::IMatcher> CMatcher::deserialize(boost::property_tree::ptree const& ptMatch)
@@ -114,6 +114,6 @@ namespace Common
       auto matcher(std::make_unique<CMatcher>());
       for (auto const& ptRule : ptMatch.get_child( "rules" ).get_child( "" ))
       {  matcher->add(CMatchingRule::deserialize(ptRule.second)); }
-      return std::move(matcher);      
+      return matcher; 
    }
 }}

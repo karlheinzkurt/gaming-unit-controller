@@ -100,7 +100,7 @@ namespace Internal ///< Internal
       ptCounter.put( "unit", os.str() );
       ptCounter.put( "active", m_active.count() );
       ptCounter.put( "previousRun", m_previousRun.time_since_epoch().count() );
-      return std::move(ptCounter);
+      return ptCounter;
    }
    
    API::Unit CWeekCounter::getUnit() const
