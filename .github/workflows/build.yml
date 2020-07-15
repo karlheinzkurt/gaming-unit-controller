@@ -26,6 +26,7 @@ jobs:
     - name: Get dependencies
       working-directory: build      
       run: |
+        export PATH=$PATH:$HOME/.local/bin
         conan install --build=missing ../
       
     - name: Configure
