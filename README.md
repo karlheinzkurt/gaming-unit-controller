@@ -2,7 +2,8 @@
 
 # ZockZilla
 Daemon to monitor runtime of processes. When limits get exceeded, 
-processes and childs will be terminated. 
+processes and childs (...of the processes ;-) will be terminated and terminated
+again when they are restarted in the configured amount of time. 
 
 Collected information can be written into InfluxDB via cpprestsdk to be
 able to use Grafana to create nice dashboards and to send notification e.g.
