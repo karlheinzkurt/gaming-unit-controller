@@ -35,6 +35,9 @@ jobs:
       working-directory: build
       run: cmake --build . --config Release -- -j
       
+    - name: Get integration test dependencies
+      run: sudo apt-get -y install influxdb
+      
     - name: Run unit tests
       working-directory: build
       run: bin/gsclib.test
