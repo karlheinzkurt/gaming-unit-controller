@@ -25,8 +25,7 @@ jobs:
       working-directory: build      
       run: |
         export PATH=$PATH:$HOME/.local/bin
-        conan install --build=missing ../
-        conan profile update settings.compiler.libcxx=libstdc++11 default
+        conan install --build=missing ../ -s compiler.libcxx=libstdc++11
       
     - name: Configure
       working-directory: build
@@ -34,7 +33,7 @@ jobs:
       
     - name: Build
       working-directory: build
-      run: cmake --build . --config Release
+      run: cmake --build . --config Release -- -j
       
     - name: Run unit tests
       working-directory: build
