@@ -11,7 +11,7 @@ pushd $BUILD_DIR
       -DCMAKE_BUILD_TYPE=Release \
       $SOURCE_DIR 
 
-   cmake --build .
+   cmake --build . -- -j
    cpack .
 popd
 
