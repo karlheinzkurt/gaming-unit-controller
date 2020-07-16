@@ -19,9 +19,6 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install gcc cmake make liblog4cxx-dev python3-pip python3-setuptools python3-wheel
         pip3 install conan
-        export PATH=$PATH:$HOME/.local/bin
-        conan install
-        conan profile update settings.compiler.libcxx=libstdc++11 default
         mkdir build
         
     - name: Get dependencies
@@ -29,6 +26,7 @@ jobs:
       run: |
         export PATH=$PATH:$HOME/.local/bin
         conan install --build=missing ../
+        conan profile update settings.compiler.libcxx=libstdc++11 default
       
     - name: Configure
       working-directory: build
