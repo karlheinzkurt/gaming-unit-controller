@@ -17,9 +17,8 @@ able to use Grafana to create nice dashboards and to send notification e.g.
 (boost, cpprestsdk, gtest gets installed via conan)
 
 ```
-sudo apt install gcc make cmake python3 liblog4cxx-dev ... maybe something more
-
-python3 -m pip install conan
+apt-get -y install gcc cmake make liblog4cxx-dev python3-pip python3-setuptools python3-wheel ... maybe something more
+pip3 install conan
 ```
 
 # Build Instructions
@@ -30,11 +29,14 @@ pushd build
 # Install dependencies
 #
 conan install --build missing ../
+#
+# OR maybe when you get linker errors and you are using gcc
+conan install --build=missing ../ -s compiler.libcxx=libstdc++11
 
 # Build lib, executable and tests
 #
 cmake -DCMAKE_BUILD_TYPE=Release ../source
-cmake --build .
+cmake --build . --config Release -- -j
 
 # Run tests
 #
