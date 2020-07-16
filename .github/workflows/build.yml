@@ -37,7 +37,7 @@ jobs:
       
     - name: Run unit tests
       working-directory: build
-      run: build/bin/gsclib.test
+      run: bin/gsclib.test
 
     - name: Create Debian package
       working-directory: build
