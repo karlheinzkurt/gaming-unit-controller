@@ -56,9 +56,16 @@ jobs:
       working-directory: build
       run: cpack
     
-    - name: Upload artifacts
+    - name: Archive debian package
       uses: actions/upload-artifact@v2
       with:
+        name: gsc.deb
         path: |
           build/*.deb
+    
+    - name: Archive test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-and-memory-check-results
+        path: |
           build/*.result.xml
