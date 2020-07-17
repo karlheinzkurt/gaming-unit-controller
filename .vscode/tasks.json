@@ -6,35 +6,35 @@
     {
       "label": "prepare",
       "type": "shell",
-      "command": "mkdir -p build"
+      "command": "mkdir -p build/Debug"
     },
     {
       "label": "dependencies",
       "type": "shell",
       "dependsOn": "prepare",
       "options": {
-        "cwd": "build"
+        "cwd": "build/Debug"
       },
       // When there are linker errors when using gcc, try switching 
       // explicitly to new abi version by adding this to conan install:
       //    -s compiler.libcxx=libstdc++11
-      "command": "conan install --build missing .."
+      "command": "conan install --build missing ../.."
     },
     {
       "label": "configure",
       "type": "shell",
       "dependsOn": "dependencies",
       "options": {
-        "cwd": "build"
+        "cwd": "build/Debug"
       },
-      "command": "cmake -DCMAKE_BUILD_TYPE=Debug ../source"
+      "command": "cmake -DCMAKE_BUILD_TYPE=Debug ../../source"
     },
     {
       "label": "build",
       "type": "shell",
       "dependsOn": "configure",
       "options": {
-        "cwd": "build"
+        "cwd": "build/Debug"
       },
       "command": "cmake --build . --config Debug -- -j",
       "problemMatcher": [
