@@ -40,17 +40,17 @@ jobs:
       
     - name: Run gunit tests
       working-directory: build
-      run: bin/gsclib.test
+      run: bin/gsclib.test --gtest_output=xml:test.result.xml
       
     - name: Run valgrind memory check
       working-directory: build
       run: |
-        valgrind bin/gsclib.test \
+        valgrind \
           --leak-check=full \
           --show-reachable=yes \
           --track-origins=yes \
           --xml=yes --xml-file=valgrind.result.xml \
-          --gtest_output=xml:test.result.xml
+          bin/gsclib.test
 
     - name: Create Debian package
       working-directory: build
