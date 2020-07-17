@@ -8,7 +8,31 @@ terminated again when they are restarted in the configured amount of time.
 Collected information can be written into InfluxDB via cpprestsdk to be
 able to use Grafana to create nice dashboards and to send notification e.g.
 
-# Requirements
+# ToDo
+- Port of the system interaction for Windows. In general, the system interactions 
+are cleanly separated from the business logic by interfaces, but there is no time 
+to implement it right now. 
+
+# Configure
+It's possible to configure processes to be observed and their limits and implications.
+Observed processes can be matched with whitelist and blacklist patterns.
+See some defaults as an example here: [gsc.config.xml](https://github.com/karlheinzkurt/zock-zilla/blob/master/source/gsc/etc/gsc.config.xml)
+```
+vim /usr/share/gsc/gsc.config.xml
+...
+```
+
+# Enable and run the daemon
+```
+sudo systemctl --system daemon-reload
+sudo systemctl enable gsc
+sudo systemctl start gsc
+```
+
+# Build it locally
+When the prebuild debian package is not sufficiant only.
+
+## Requirements
 * c++14 enabled compiler
 * cmake (>= 3.1.2)
 * log4cxx (>= 0.10.0, there is no conan package)
@@ -22,7 +46,7 @@ apt-get -y install gcc cmake make liblog4cxx-dev python3-pip python3-setuptools 
 pip3 install conan
 ```
 
-# Build Instructions
+## Build Instructions
 ```
 mkdir build
 pushd build
@@ -46,7 +70,7 @@ bin/gsclib.test
 popd
 ```
 
-# Create a package for Debian like systems, check and install it
+## Create a package for Debian like systems, check and install it
 ```
 pushd build
 
@@ -58,18 +82,4 @@ dpkg --contents gsc*.deb
 sudo dpkg -i gsc*.deb
 
 popd
-```
-
-# Configure processes to be observed and their limits and implications
-See defaults as an example here: [gsc.config.xml](https://github.com/karlheinzkurt/zock-zilla/blob/master/source/gsc/etc/gsc.config.xml)
-```
-vim /usr/share/gsc/gsc.config.xml
-...
-```
-
-# Enable and start the daemon
-```
-sudo systemctl --system daemon-reload
-sudo systemctl enable gsc
-sudo systemctl start gsc
 ```
