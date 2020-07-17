@@ -4,8 +4,14 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "prepare",
+      "type": "shell",
+      "command": "mkdir -p build"
+    },
+    {
       "label": "dependencies",
       "type": "shell",
+      "dependsOn": "prepare",
       "options": {
         "cwd": "build"
       },
@@ -21,7 +27,7 @@
       "options": {
         "cwd": "build"
       },
-      "command": "cmake ../source"
+      "command": "cmake -DCMAKE_BUILD_TYPE=Debug ../source"
     },
     {
       "label": "build",
@@ -30,7 +36,7 @@
       "options": {
         "cwd": "build"
       },
-      "command": "cmake --build . -- -j",
+      "command": "cmake --build . --config Debug -- -j",
       "problemMatcher": [
         "$gcc"
       ]
