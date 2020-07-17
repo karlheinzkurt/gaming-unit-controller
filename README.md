@@ -2,8 +2,8 @@
 
 # ZockZilla
 Daemon to monitor runtime of processes. When limits get exceeded, 
-processes and childs (...of the processes ;-) will be terminated and terminated
-again when they are restarted in the configured amount of time. 
+processes and matching child processes will be terminated. They are 
+terminated again when they are restarted in the configured amount of time. 
 
 Collected information can be written into InfluxDB via cpprestsdk to be
 able to use Grafana to create nice dashboards and to send notification e.g.
@@ -46,23 +46,29 @@ bin/gsclib.test
 popd
 ```
 
-# Installation instructions for Debian like systems
+# Create a package for Debian like systems, check and install it
 ```
 pushd build
 
-# Create package and check content
-#
 cpack
 dpkg --contents gsc*.deb
 
-# Install package
+# Install package when satisfied
 #
 sudo dpkg -i gsc*.deb
 
 popd
+```
 
-# Enable and start daemon
-#
+# Configure processes to be observed and their limits and implications
+See defaults as an example here: [gsc.config.xml](https://github.com/karlheinzkurt/zock-zilla/blob/master/source/gsc/etc/gsc.config.xml)
+```
+vim /usr/share/gsc/gsc.config.xml
+...
+```
+
+# Enable and start the daemon
+```
 sudo systemctl --system daemon-reload
 sudo systemctl enable gsc
 sudo systemctl start gsc
